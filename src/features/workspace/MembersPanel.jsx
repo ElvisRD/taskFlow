@@ -74,11 +74,13 @@ export function MembersPanel({ workspaceId, canManage, ownerId }) {
   }
 
   return (
-    <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+    <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-zinc-900 dark:ring-zinc-800">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-slate-900">Miembros</h2>
-          <p className="text-sm text-slate-500">{members.length} personas en este workspace.</p>
+          <h2 className="text-base font-semibold text-slate-900 dark:text-zinc-100">Miembros</h2>
+          <p className="text-sm text-slate-500 dark:text-zinc-400">
+            {members.length} personas en este workspace.
+          </p>
         </div>
         {canManage ? (
           <Button variant="secondary" size="sm" onClick={() => setAddOpen(true)}>
@@ -91,10 +93,10 @@ export function MembersPanel({ workspaceId, canManage, ownerId }) {
 
       {loading ? (
         <div className="flex justify-center py-6">
-          <Spinner className="h-6 w-6 text-indigo-600" />
+          <Spinner className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
         </div>
       ) : (
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-slate-100 dark:divide-zinc-800">
           {members.map((member) => {
             const isOwner = member.id === ownerId
 
@@ -102,15 +104,17 @@ export function MembersPanel({ workspaceId, canManage, ownerId }) {
               <li key={member.id} className="flex items-center gap-3 py-3">
                 <Avatar name={member.name} src={member.avatar} size="md" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-900">
+                  <p className="truncate text-sm font-medium text-slate-900 dark:text-zinc-100">
                     {member.name}
                     {isOwner ? (
-                      <Badge className="ml-2 bg-amber-50 text-amber-700 ring-amber-200">
+                      <Badge className="ml-2 bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30">
                         Propietario
                       </Badge>
                     ) : null}
                   </p>
-                  <p className="truncate text-xs text-slate-500">{member.email}</p>
+                  <p className="truncate text-xs text-slate-500 dark:text-zinc-400">
+                    {member.email}
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -131,14 +135,14 @@ export function MembersPanel({ workspaceId, canManage, ownerId }) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-rose-600 hover:bg-rose-50"
+                        className="text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
                         onClick={() => setMemberToRemove(member)}
                       >
                         Quitar
                       </Button>
                     </>
                   ) : (
-                    <Badge className="bg-slate-100 text-slate-600 ring-slate-200">
+                    <Badge className="bg-slate-100 text-slate-600 ring-slate-200 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700">
                       {roleLabel(member.role)}
                     </Badge>
                   )}

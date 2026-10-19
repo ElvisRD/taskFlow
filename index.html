@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="TaskFlow - Gestor de tableros y tareas" />
     <title>TaskFlow</title>
+    <script>
+      // Aplica el tema antes de pintar para evitar un destello de modo claro.
+      (() => {
+        try {
+          const stored = localStorage.getItem('taskflow-theme')
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const dark = stored === 'dark' || ((stored === null || stored === 'system') && prefersDark)
+          const root = document.documentElement
+          root.classList.toggle('dark', dark)
+          root.style.colorScheme = dark ? 'dark' : 'light'
+        } catch {
+          // Sin acceso a localStorage: se usa el tema claro por defecto.
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

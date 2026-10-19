@@ -94,10 +94,12 @@ export function RegisterPage() {
 
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <span className="w-full border-t border-slate-200" />
+          <span className="w-full border-t border-slate-200 dark:border-zinc-800" />
         </div>
         <div className="relative flex justify-center text-xs font-medium uppercase">
-          <span className="bg-white px-2 text-slate-400">o con tu correo</span>
+          <span className="bg-white px-2 text-slate-500 dark:bg-zinc-900 dark:text-zinc-400">
+            o con tu correo
+          </span>
         </div>
       </div>
 

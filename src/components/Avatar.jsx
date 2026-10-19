@@ -17,7 +17,7 @@ export function Avatar({ name, src, size = 'sm', className = '' }) {
         title={name}
         loading="lazy"
         referrerPolicy="no-referrer"
-        className={`inline-block shrink-0 rounded-full bg-slate-100 object-cover ${dimensions} ${className}`}
+        className={`inline-block shrink-0 rounded-full bg-slate-100 object-cover dark:bg-zinc-800 ${dimensions} ${className}`}
       />
     )
   }
@@ -25,7 +25,7 @@ export function Avatar({ name, src, size = 'sm', className = '' }) {
   return (
     <span
       title={name}
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-indigo-100 font-semibold text-indigo-700 ${dimensions} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-indigo-100 font-semibold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 ${dimensions} ${className}`}
     >
       {initials(name)}
     </span>

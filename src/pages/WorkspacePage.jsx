@@ -82,8 +82,10 @@ export function WorkspacePage() {
     return (
       <PageContainer>
         <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-          <h1 className="text-lg font-semibold text-slate-900">Workspace no encontrado</h1>
-          <p className="max-w-sm text-sm text-slate-500">
+          <h1 className="text-lg font-semibold text-slate-900 dark:text-zinc-100">
+            Workspace no encontrado
+          </h1>
+          <p className="max-w-sm text-sm text-slate-500 dark:text-zinc-400">
             Puede que no exista o que no tengas acceso a él.
           </p>
           <Button as={Link} to="/workspaces" variant="secondary">
@@ -101,7 +103,7 @@ export function WorkspacePage() {
     <PageContainer>
       <Link
         to="/workspaces"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-100"
       >
         <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" />
@@ -114,17 +116,19 @@ export function WorkspacePage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold text-slate-900">{workspace.name}</h1>
+            <h1 className="text-2xl font-semibold text-slate-900 dark:text-zinc-100">
+              {workspace.name}
+            </h1>
             {workspace.role ? (
-              <Badge className="bg-indigo-50 text-indigo-700 ring-indigo-200">
+              <Badge className="bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-500/30">
                 {roleLabel(workspace.role)}
               </Badge>
             ) : null}
           </div>
-          <p className="mt-1 max-w-2xl text-sm text-slate-500">
+          <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-zinc-400">
             {workspace.description || 'Sin descripción.'}
           </p>
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-slate-500 dark:text-zinc-400">
             {workspace.members_count ?? 0} miembros · {workspace.boards_count ?? 0} tableros
           </p>
         </div>
@@ -139,7 +143,7 @@ export function WorkspacePage() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-rose-600 hover:bg-rose-50"
+              className="text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
               onClick={() => setDeleteOpen(true)}
             >
               Eliminar
@@ -151,7 +155,7 @@ export function WorkspacePage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold text-slate-900">Tableros</h2>
+            <h2 className="text-base font-semibold text-slate-900 dark:text-zinc-100">Tableros</h2>
             {canManage ? (
               <Button size="sm" onClick={() => setCreateBoardOpen(true)}>
                 Nuevo tablero
@@ -160,9 +164,11 @@ export function WorkspacePage() {
           </div>
 
           {boards.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-white/60 py-14 text-center">
-              <p className="text-sm font-medium text-slate-700">Todavía no hay tableros</p>
-              <p className="max-w-xs text-sm text-slate-500">
+            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-white/60 py-14 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
+              <p className="text-sm font-medium text-slate-700 dark:text-zinc-300">
+                Todavía no hay tableros
+              </p>
+              <p className="max-w-xs text-sm text-slate-500 dark:text-zinc-400">
                 Crea un tablero para empezar a organizar listas y tareas.
               </p>
               {canManage ? (

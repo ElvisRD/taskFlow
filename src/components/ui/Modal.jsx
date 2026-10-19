@@ -44,7 +44,7 @@ export function Modal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 p-4 backdrop-blur-sm sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-zinc-900/40 p-4 backdrop-blur-sm sm:p-6">
       <button
         type="button"
         aria-label="Cerrar"
@@ -55,22 +55,24 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`relative my-8 w-full ${SIZES[size] ?? SIZES.md} rounded-2xl bg-white shadow-xl ring-1 ring-slate-200`}
+        className={`relative my-8 w-full ${SIZES[size] ?? SIZES.md} rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 dark:bg-zinc-900 dark:ring-zinc-800`}
       >
         {title || onClose ? (
-          <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
+          <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4 dark:border-zinc-800">
             <div>
               {title ? (
-                <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+                <h2 className="text-base font-semibold text-slate-900 dark:text-zinc-100">
+                  {title}
+                </h2>
               ) : null}
               {description ? (
-                <p className="mt-0.5 text-sm text-slate-500">{description}</p>
+                <p className="mt-0.5 text-sm text-slate-500 dark:text-zinc-400">{description}</p>
               ) : null}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="-mr-1 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              className="-mr-1 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
               aria-label="Cerrar"
             >
               <svg
@@ -88,7 +90,7 @@ export function Modal({
         <div className="px-5 py-4">{children}</div>
 
         {footer ? (
-          <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-4">
+          <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-4 dark:border-zinc-800">
             {footer}
           </div>
         ) : null}

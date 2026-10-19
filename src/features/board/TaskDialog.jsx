@@ -101,7 +101,7 @@ export function TaskDialog({
           {canDelete ? (
             <Button
               variant="ghost"
-              className="mr-auto text-rose-600 hover:bg-rose-50"
+              className="mr-auto text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
               onClick={() => setDeleteOpen(true)}
               disabled={saving}
             >
@@ -143,8 +143,10 @@ export function TaskDialog({
             />
           </Field>
 
-          <div className="rounded-xl bg-slate-50/70 p-4 ring-1 ring-slate-100">
-            <h3 className="mb-3 text-sm font-semibold text-slate-700">Comentarios</h3>
+          <div className="rounded-xl bg-slate-50/70 p-4 ring-1 ring-slate-100 dark:bg-zinc-800/40 dark:ring-zinc-800">
+            <h3 className="mb-3 text-sm font-semibold text-slate-700 dark:text-zinc-300">
+              Comentarios
+            </h3>
             <CommentThread
               taskId={task.id}
               currentUserId={currentUserId}
@@ -196,18 +198,20 @@ export function TaskDialog({
             </select>
           </Field>
 
-          <label className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+          <label className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200 dark:bg-zinc-800/60 dark:text-zinc-300 dark:ring-zinc-700">
             <input
               type="checkbox"
               checked={form.completed}
               onChange={(event) => update('completed', event.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
+              className="checkbox"
             />
             Marcar como completada
           </label>
 
           <div>
-            <h3 className="mb-2 text-sm font-semibold text-slate-700">Adjuntos</h3>
+            <h3 className="mb-2 text-sm font-semibold text-slate-700 dark:text-zinc-300">
+              Adjuntos
+            </h3>
             <AttachmentList
               taskId={task.id}
               currentUserId={currentUserId}

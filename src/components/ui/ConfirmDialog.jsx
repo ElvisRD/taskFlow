@@ -29,7 +29,7 @@ export function ConfirmDialog({
         </>
       }
     >
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-slate-600 dark:text-zinc-300">
         {description ?? 'Esta acción no se puede deshacer.'}
       </p>
     </Modal>

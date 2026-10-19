@@ -76,8 +76,8 @@ export function CreateBoardDialog({ open, workspaceId, onClose, onCreated }) {
                 type="button"
                 title={color.label}
                 onClick={() => setForm((previous) => ({ ...previous, color: color.value }))}
-                className={`h-8 w-8 rounded-full ring-2 ring-offset-2 transition ${
-                  form.color === color.value ? 'ring-slate-900' : 'ring-transparent'
+                className={`h-8 w-8 rounded-full ring-2 ring-offset-2 transition dark:ring-offset-zinc-900 ${
+                  form.color === color.value ? 'ring-slate-900 dark:ring-zinc-100' : 'ring-transparent'
                 }`}
                 style={{ backgroundColor: color.value }}
               />

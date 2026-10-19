@@ -430,8 +430,10 @@ export function BoardPage() {
     return (
       <PageContainer wide>
         <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-          <h1 className="text-lg font-semibold text-slate-900">Tablero no encontrado</h1>
-          <p className="max-w-sm text-sm text-slate-500">
+          <h1 className="text-lg font-semibold text-slate-900 dark:text-zinc-100">
+            Tablero no encontrado
+          </h1>
+          <p className="max-w-sm text-sm text-slate-500 dark:text-zinc-400">
             Puede que no exista o que no tengas acceso a él.
           </p>
           <Button as={Link} to={`/workspaces/${workspaceId}`} variant="secondary">
@@ -446,7 +448,7 @@ export function BoardPage() {
     <PageContainer wide>
       <Link
         to={`/workspaces/${workspaceId}`}
-        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-100"
       >
         <IconArrowLeft className="h-4 w-4" />
         {board?.name ? 'Volver al workspace' : 'Volver'}
@@ -480,7 +482,7 @@ export function BoardPage() {
               />
             ) : (
               <h1
-                className={`text-2xl font-semibold text-slate-900 ${canManage ? 'cursor-text' : ''}`}
+                className={`text-2xl font-semibold text-slate-900 dark:text-zinc-100 ${canManage ? 'cursor-text' : ''}`}
                 onClick={() => {
                   if (canManage) {
                     setEditingBoard(true)
@@ -490,7 +492,7 @@ export function BoardPage() {
                 {board?.name}
               </h1>
             )}
-            <p className="mt-1 max-w-2xl text-sm text-slate-500">
+            <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-zinc-400">
               {board?.description || 'Sin descripción.'}
             </p>
           </div>
@@ -499,14 +501,20 @@ export function BoardPage() {
         <div className="flex shrink-0 items-center gap-3">
           <div className="flex -space-x-2">
             {members.slice(0, 5).map((member) => (
-              <Avatar key={member.id} name={member.name} src={member.avatar} size="sm" className="ring-2 ring-slate-100" />
+              <Avatar
+                key={member.id}
+                name={member.name}
+                src={member.avatar}
+                size="sm"
+                className="ring-2 ring-slate-100 dark:ring-zinc-900"
+              />
             ))}
           </div>
           {canManage ? (
             <Button
               variant="ghost"
               size="sm"
-              className="text-rose-600 hover:bg-rose-50"
+              className="text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
               onClick={() => setDeleteBoardOpen(true)}
             >
               Eliminar tablero
@@ -543,7 +551,7 @@ export function BoardPage() {
               {addingList ? (
                 <form
                   onSubmit={handleCreateList}
-                  className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200"
+                  className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200 dark:bg-zinc-900 dark:ring-zinc-800"
                 >
                   <input
                     autoFocus
@@ -573,7 +581,7 @@ export function BoardPage() {
                 <button
                   type="button"
                   onClick={() => setAddingList(true)}
-                  className="flex w-full items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/50 px-3 py-3 text-sm font-medium text-slate-500 transition hover:border-indigo-300 hover:text-indigo-600"
+                  className="flex w-full items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/50 px-3 py-3 text-sm font-medium text-slate-500 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:border-indigo-500 dark:hover:text-indigo-300"
                 >
                   <IconPlus className="h-4 w-4" />
                   Añadir lista

@@ -15,7 +15,7 @@ export function TaskCard({ task, onOpen, dragging = false, dragProps = {} }) {
     <article
       {...dragProps}
       onClick={onOpen}
-      className={`group cursor-grab touch-none rounded-xl bg-white p-3 text-left shadow-sm ring-1 ring-slate-200 transition hover:ring-indigo-300 active:cursor-grabbing ${
+      className={`group cursor-grab touch-none rounded-xl bg-white p-3 text-left shadow-sm ring-1 ring-slate-200 transition hover:ring-indigo-300 active:cursor-grabbing dark:bg-zinc-800 dark:ring-zinc-700 dark:hover:ring-indigo-500 ${
         dragging ? 'opacity-50' : ''
       }`}
     >
@@ -27,7 +27,7 @@ export function TaskCard({ task, onOpen, dragging = false, dragProps = {} }) {
         ) : null}
         <p
           className={`flex-1 text-sm font-medium leading-snug ${
-            task.is_completed ? 'text-slate-400 line-through' : 'text-slate-800'
+            task.is_completed ? 'text-slate-400 line-through dark:text-zinc-400' : 'text-slate-800 dark:text-zinc-100'
           }`}
         >
           {task.title}
@@ -40,7 +40,9 @@ export function TaskCard({ task, onOpen, dragging = false, dragProps = {} }) {
         {dueDate ? (
           <span
             className={`inline-flex items-center gap-1 text-xs ${
-              task.is_overdue ? 'font-medium text-rose-600' : 'text-slate-500'
+              task.is_overdue
+                ? 'font-medium text-rose-600 dark:text-rose-400'
+                : 'text-slate-500 dark:text-zinc-400'
             }`}
           >
             <IconCalendar className="h-3.5 w-3.5" />
@@ -49,14 +51,14 @@ export function TaskCard({ task, onOpen, dragging = false, dragProps = {} }) {
         ) : null}
 
         {commentCount > 0 ? (
-          <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+          <span className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-zinc-400">
             <IconChat className="h-3.5 w-3.5" />
             {commentCount}
           </span>
         ) : null}
 
         {attachmentCount > 0 ? (
-          <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+          <span className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-zinc-400">
             <IconPaperclip className="h-3.5 w-3.5" />
             {attachmentCount}
           </span>
@@ -66,7 +68,9 @@ export function TaskCard({ task, onOpen, dragging = false, dragProps = {} }) {
       {task.assignee ? (
         <div className="mt-3 flex items-center gap-2">
           <Avatar name={task.assignee.name} src={task.assignee.avatar} size="xs" />
-          <span className="truncate text-xs text-slate-500">{task.assignee.name}</span>
+          <span className="truncate text-xs text-slate-500 dark:text-zinc-400">
+            {task.assignee.name}
+          </span>
         </div>
       ) : null}
     </article>

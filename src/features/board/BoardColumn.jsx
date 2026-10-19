@@ -63,7 +63,7 @@ export function BoardColumn({
   }
 
   return (
-    <div className="flex max-h-full w-72 shrink-0 flex-col rounded-2xl bg-slate-50 ring-1 ring-slate-200">
+    <div className="flex max-h-full w-72 shrink-0 flex-col rounded-2xl bg-slate-50 ring-1 ring-slate-200 dark:bg-zinc-900 dark:ring-zinc-800">
       <header className="flex items-center justify-between gap-2 px-3 py-2.5">
         {editing ? (
           <input
@@ -84,11 +84,13 @@ export function BoardColumn({
             className={`${inputClass} py-1 text-sm`}
           />
         ) : (
-          <h3 className="truncate text-sm font-semibold text-slate-700">{list.name}</h3>
+          <h3 className="truncate text-sm font-semibold text-slate-700 dark:text-zinc-300">
+            {list.name}
+          </h3>
         )}
 
         <div className="flex items-center gap-1">
-          <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">
+          <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-zinc-800 dark:text-zinc-300">
             {list.tasks.length}
           </span>
 
@@ -97,7 +99,7 @@ export function BoardColumn({
               <button
                 type="button"
                 onClick={() => setMenuOpen((open) => !open)}
-                className="rounded-md p-1 text-slate-400 transition hover:bg-slate-200 hover:text-slate-600"
+                className="rounded-md p-1 text-slate-400 transition hover:bg-slate-200 hover:text-slate-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
                 aria-label={`Acciones de ${list.name}`}
               >
                 <IconDots className="h-4 w-4" />
@@ -111,10 +113,10 @@ export function BoardColumn({
                     className="fixed inset-0 z-10 cursor-default"
                     onClick={() => setMenuOpen(false)}
                   />
-                  <div className="absolute right-0 z-20 mt-1 w-32 overflow-hidden rounded-lg bg-white py-1 text-sm shadow-lg ring-1 ring-slate-200">
+                  <div className="absolute right-0 z-20 mt-1 w-32 overflow-hidden rounded-lg bg-white py-1 text-sm shadow-lg ring-1 ring-slate-200 dark:bg-zinc-800 dark:ring-zinc-700">
                     <button
                       type="button"
-                      className="block w-full px-3 py-1.5 text-left text-slate-700 hover:bg-slate-50"
+                      className="block w-full px-3 py-1.5 text-left text-slate-700 hover:bg-slate-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
                       onClick={() => {
                         setMenuOpen(false)
                         setEditing(true)
@@ -124,7 +126,7 @@ export function BoardColumn({
                     </button>
                     <button
                       type="button"
-                      className="block w-full px-3 py-1.5 text-left text-rose-600 hover:bg-rose-50"
+                      className="block w-full px-3 py-1.5 text-left text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
                       onClick={() => {
                         setMenuOpen(false)
                         onDelete(list)
@@ -143,7 +145,7 @@ export function BoardColumn({
       <div
         ref={setNodeRef}
         className={`scrollbar-thin flex-1 space-y-2 overflow-y-auto px-2.5 pb-2 pt-0.5 transition ${
-          isOver ? 'bg-indigo-50/70' : ''
+          isOver ? 'bg-indigo-50/70 dark:bg-indigo-500/10' : ''
         }`}
       >
         <SortableContext
@@ -156,13 +158,16 @@ export function BoardColumn({
         </SortableContext>
 
         {list.tasks.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-slate-300 px-3 py-6 text-center text-xs text-slate-400">
+          <p className="rounded-xl border border-dashed border-slate-300 px-3 py-6 text-center text-xs text-slate-500 dark:border-zinc-700 dark:text-zinc-400">
             Sin tareas. Arrastra una aquí.
           </p>
         ) : null}
       </div>
 
-      <form onSubmit={submitAdd} className="flex items-center gap-2 border-t border-slate-200 p-2">
+      <form
+        onSubmit={submitAdd}
+        className="flex items-center gap-2 border-t border-slate-200 p-2 dark:border-zinc-800"
+      >
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}

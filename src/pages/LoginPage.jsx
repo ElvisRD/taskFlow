@@ -85,10 +85,12 @@ export function LoginPage() {
 
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <span className="w-full border-t border-slate-200" />
+          <span className="w-full border-t border-slate-200 dark:border-zinc-800" />
         </div>
         <div className="relative flex justify-center text-xs font-medium uppercase">
-          <span className="bg-white px-2 text-slate-400">o con tu correo</span>
+          <span className="bg-white px-2 text-slate-500 dark:bg-zinc-900 dark:text-zinc-400">
+            o con tu correo
+          </span>
         </div>
       </div>
 
@@ -126,8 +128,8 @@ export function LoginPage() {
         </Button>
       </form>
 
-      <div className="mt-6 rounded-lg bg-slate-50 p-3 text-xs text-slate-500 ring-1 ring-inset ring-slate-200">
-        <p className="font-medium text-slate-600">Cuentas de demostración</p>
+      <div className="mt-6 rounded-lg bg-slate-50 p-3 text-xs text-slate-500 ring-1 ring-inset ring-slate-200 dark:bg-zinc-800/60 dark:text-zinc-400 dark:ring-zinc-700">
+        <p className="font-medium text-slate-600 dark:text-zinc-300">Cuentas de demostración</p>
         <p className="mt-1">ana@taskflow.test · password</p>
         <p>beto@taskflow.test · password</p>
       </div>

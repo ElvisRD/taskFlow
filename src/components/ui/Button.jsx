@@ -4,9 +4,9 @@ const VARIANTS = {
   primary:
     'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600',
   secondary:
-    'bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus-visible:outline-indigo-600',
+    'bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus-visible:outline-indigo-600 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700 dark:hover:bg-zinc-700',
   ghost:
-    'text-slate-600 hover:bg-slate-100 focus-visible:outline-indigo-600',
+    'text-slate-600 hover:bg-slate-100 focus-visible:outline-indigo-600 dark:text-zinc-300 dark:hover:bg-zinc-800',
   danger:
     'bg-rose-600 text-white hover:bg-rose-500 focus-visible:outline-rose-600',
 }

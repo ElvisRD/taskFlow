@@ -89,7 +89,7 @@ export function AttachmentList({ taskId, currentUserId, isAdmin, onCountChange }
     <div className="space-y-3">
       {error ? <Alert>{error}</Alert> : null}
 
-      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-3 text-sm text-slate-500 transition hover:border-indigo-300 hover:text-indigo-600">
+      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-3 text-sm text-slate-500 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-indigo-500 dark:hover:text-indigo-300">
         <IconPaperclip className="h-4 w-4" />
         {uploading ? 'Subiendo…' : 'Adjuntar archivo (máx. 10 MB)'}
         <input
@@ -103,24 +103,26 @@ export function AttachmentList({ taskId, currentUserId, isAdmin, onCountChange }
 
       {loading ? (
         <div className="flex justify-center py-4">
-          <Spinner className="h-5 w-5 text-indigo-600" />
+          <Spinner className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
         </div>
       ) : attachments.length === 0 ? (
-        <p className="text-sm text-slate-400">Sin archivos adjuntos.</p>
+        <p className="text-sm text-slate-500 dark:text-zinc-400">Sin archivos adjuntos.</p>
       ) : (
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-slate-100 dark:divide-zinc-800">
           {attachments.map((attachment) => {
             const canDelete = attachment.uploader?.id === currentUserId || isAdmin
 
             return (
               <li key={attachment.id} className="flex items-center gap-3 py-2">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-400">
                   <IconPaperclip className="h-4 w-4" />
                 </span>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-800">{attachment.name}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="truncate text-sm font-medium text-slate-800 dark:text-zinc-200">
+                    {attachment.name}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400">
                     {formatBytes(attachment.size)} · {formatDateTime(attachment.created_at)}
                   </p>
                 </div>
@@ -129,7 +131,7 @@ export function AttachmentList({ taskId, currentUserId, isAdmin, onCountChange }
                   type="button"
                   onClick={() => handleDownload(attachment)}
                   disabled={downloadingId === attachment.id}
-                  className="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-indigo-600 disabled:opacity-50"
+                  className="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-indigo-600 disabled:opacity-50 dark:hover:bg-zinc-800 dark:hover:text-indigo-300"
                   aria-label={`Descargar ${attachment.name}`}
                 >
                   {downloadingId === attachment.id ? (
@@ -143,7 +145,7 @@ export function AttachmentList({ taskId, currentUserId, isAdmin, onCountChange }
                   <button
                     type="button"
                     onClick={() => handleDelete(attachment)}
-                    className="rounded-md p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                    className="rounded-md p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
                     aria-label={`Eliminar ${attachment.name}`}
                   >
                     <IconTrash className="h-4 w-4" />

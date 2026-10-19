@@ -86,10 +86,10 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
 
       {loading ? (
         <div className="flex justify-center py-4">
-          <Spinner className="h-5 w-5 text-indigo-600" />
+          <Spinner className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
         </div>
       ) : comments.length === 0 ? (
-        <p className="text-sm text-slate-400">Todavía no hay comentarios.</p>
+        <p className="text-sm text-slate-500 dark:text-zinc-400">Todavía no hay comentarios.</p>
       ) : (
         <ul className="scrollbar-thin max-h-64 space-y-3 overflow-y-auto pr-1">
           {comments.map((comment) => {
@@ -98,21 +98,23 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
             return (
               <li key={comment.id} className="flex items-start gap-2.5">
                 <Avatar name={comment.author?.name} src={comment.author?.avatar} size="sm" />
-                <div className="min-w-0 flex-1 rounded-lg bg-slate-50 px-3 py-2 ring-1 ring-slate-100">
+                <div className="min-w-0 flex-1 rounded-lg bg-slate-50 px-3 py-2 ring-1 ring-slate-100 dark:bg-zinc-800/60 dark:ring-zinc-800">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="truncate text-xs font-medium text-slate-700">
+                    <p className="truncate text-xs font-medium text-slate-700 dark:text-zinc-300">
                       {comment.author?.name ?? 'Usuario'}
                     </p>
-                    <span className="shrink-0 text-[11px] text-slate-400">
+                    <span className="shrink-0 text-[11px] text-slate-500 dark:text-zinc-400">
                       {formatDateTime(comment.created_at)}
                     </span>
                   </div>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{comment.body}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700 dark:text-zinc-300">
+                    {comment.body}
+                  </p>
                   {canDelete ? (
                     <button
                       type="button"
                       onClick={() => handleDelete(comment)}
-                      className="mt-1 text-[11px] font-medium text-rose-500 hover:text-rose-600"
+                      className="mt-1 text-[11px] font-medium text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300"
                     >
                       Eliminar
                     </button>
