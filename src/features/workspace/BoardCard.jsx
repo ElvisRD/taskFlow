@@ -1,0 +1,34 @@
+import { Link } from 'react-router-dom'
+
+export function BoardCard({ workspaceId, board }) {
+  const color = board.color || '#6366f1'
+
+  return (
+    <Link
+      to={`/workspaces/${workspaceId}/boards/${board.id}`}
+      className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-indigo-200"
+    >
+      <div className="h-1.5 w-full" style={{ backgroundColor: color }} />
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-base font-semibold text-slate-900 group-hover:text-indigo-700">
+            {board.name}
+          </h3>
+          <span
+            className="mt-1 h-3 w-3 shrink-0 rounded-full"
+            style={{ backgroundColor: color }}
+            aria-hidden="true"
+          />
+        </div>
+
+        <p className="mt-2 line-clamp-2 flex-1 text-sm text-slate-500">
+          {board.description || 'Sin descripción.'}
+        </p>
+
+        <p className="mt-4 text-xs text-slate-500">
+          {board.lists_count ?? 0} {(board.lists_count ?? 0) === 1 ? 'lista' : 'listas'}
+        </p>
+      </div>
+    </Link>
+  )
+}
