@@ -1,14 +1,44 @@
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import { Avatar } from './Avatar.jsx'
 import { ThemeToggle } from './ThemeToggle.jsx'
-import { Button } from './ui/Button.jsx'
+import { IconChevronDown, IconLogo, IconLogout } from './icons.jsx'
 
 export function Layout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return undefined
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false)
+      }
+    }
+
+    const handlePointerDown = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('pointerdown', handlePointerDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('pointerdown', handlePointerDown)
+    }
+  }, [menuOpen])
 
   const handleLogout = async () => {
+    setMenuOpen(false)
     await logout()
     navigate('/login', { replace: true })
   }
@@ -20,10 +50,7 @@ export function Layout() {
           <div className="flex items-center gap-6">
             <Link to="/workspaces" className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path d="M4 3.75A.75.75 0 0 1 4.75 3h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 4 3.75Z" />
-                  <path d="M4 3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-4V4a1 1 0 0 0-1-1H4Zm10 6.5v4.25a.75.75 0 0 1-1.5 0V9.5H14Z" />
-                </svg>
+                <IconLogo className="h-4 w-4" />
               </span>
               <span className="text-base font-semibold text-slate-900 dark:text-zinc-100">
                 TaskFlow
@@ -46,20 +73,53 @@ export function Layout() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-2 sm:flex">
-              <Avatar name={user?.name} src={user?.avatar} size="sm" />
-              <div className="leading-tight">
-                <p className="text-sm font-medium text-slate-800 dark:text-zinc-200">
-                  {user?.name}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-zinc-400">{user?.email}</p>
-              </div>
-            </div>
+          <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Button variant="secondary" size="sm" onClick={handleLogout}>
-              Salir
-            </Button>
+
+            <div ref={menuRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((open) => !open)}
+                title="Menú de usuario"
+                aria-label={`Menú de ${user?.name ?? 'usuario'}`}
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+                className="inline-flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:hover:bg-zinc-800"
+              >
+                <Avatar name={user?.name} src={user?.avatar} size="sm" />
+                <span className="hidden min-w-0 text-left leading-tight sm:block">
+                  <span className="block max-w-40 truncate text-sm font-medium text-slate-800 dark:text-zinc-200">
+                    {user?.name}
+                  </span>
+                  <span className="block max-w-40 truncate text-xs text-slate-500 dark:text-zinc-400">
+                    {user?.email}
+                  </span>
+                </span>
+                <IconChevronDown
+                  className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition ${
+                    menuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {menuOpen ? (
+                <div
+                  role="menu"
+                  aria-label="Menú de usuario"
+                  className="absolute right-0 z-50 mt-1 w-44 overflow-hidden rounded-lg bg-white py-1 text-sm shadow-lg ring-1 ring-slate-200 dark:bg-zinc-800 dark:ring-zinc-700"
+                >
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-slate-700 transition hover:bg-slate-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                  >
+                    <IconLogout className="h-4 w-4 shrink-0 text-slate-400" />
+                    <span>Cerrar sesión</span>
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </header>
