@@ -1,6 +1,10 @@
 import { useState } from 'react'
-import { useDroppable } from '@dnd-kit/core'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Button } from '../../components/ui/Button.jsx'
 import { inputClass } from '../../components/ui/Field.jsx'
 import { IconDots, IconPlus } from '../../components/icons.jsx'
@@ -15,13 +19,26 @@ export function BoardColumn({
   onAddTask,
   onOpenTask,
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id: listDndId(list.id) })
+  const {
+    attributes,
+    listeners,
+    setActivatorNodeRef,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+    isOver,
+  } = useSortable({
+    id: listDndId(list.id),
+    data: { type: 'list', listId: list.id },
+  })
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(list.name)
   const [title, setTitle] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const canDrag = canManage && !editing
 
   const submitRename = async () => {
     const trimmed = name.trim()
@@ -63,33 +80,49 @@ export function BoardColumn({
   }
 
   return (
-    <div className="flex max-h-full w-72 shrink-0 flex-col rounded-2xl bg-slate-50 ring-1 ring-slate-200 dark:bg-zinc-900 dark:ring-zinc-800">
-      <header className="flex items-center justify-between gap-2 px-3 py-2.5">
-        {editing ? (
-          <input
-            autoFocus
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            onBlur={submitRename}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                submitRename()
-              }
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`flex max-h-full w-72 shrink-0 flex-col rounded-2xl bg-slate-50 ring-1 ring-slate-200 transition-shadow dark:bg-zinc-900 dark:ring-zinc-800 ${
+        isDragging ? 'opacity-40 shadow-xl' : ''
+      }`}
+    >
+      <header className="flex items-stretch justify-between gap-2">
+        <div
+          ref={canDrag ? setActivatorNodeRef : undefined}
+          {...(canDrag ? attributes : {})}
+          {...(canDrag ? listeners : {})}
+          aria-label={canDrag ? `Reordenar ${list.name}` : undefined}
+          className={`flex min-w-0 flex-1 items-center gap-1 py-2.5 pl-3 ${
+            canDrag ? 'cursor-grab touch-none select-none active:cursor-grabbing' : ''
+          }`}
+        >
+          {editing ? (
+            <input
+              autoFocus
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              onBlur={submitRename}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  submitRename()
+                }
 
-              if (event.key === 'Escape') {
-                setName(list.name)
-                setEditing(false)
-              }
-            }}
-            className={`${inputClass} py-1 text-sm`}
-          />
-        ) : (
-          <h3 className="truncate text-sm font-semibold text-slate-700 dark:text-zinc-300">
-            {list.name}
-          </h3>
-        )}
+                if (event.key === 'Escape') {
+                  setName(list.name)
+                  setEditing(false)
+                }
+              }}
+              className={`${inputClass} min-w-0 flex-1 py-1 text-sm`}
+            />
+          ) : (
+            <h3 className="truncate text-sm font-semibold text-slate-700 dark:text-zinc-300">
+              {list.name}
+            </h3>
+          )}
+        </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1 py-2.5 pr-3">
           <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-zinc-800 dark:text-zinc-300">
             {list.tasks.length}
           </span>
@@ -143,7 +176,6 @@ export function BoardColumn({
       </header>
 
       <div
-        ref={setNodeRef}
         className={`scrollbar-thin flex-1 space-y-2 overflow-y-auto px-2.5 pb-2 pt-0.5 transition ${
           isOver ? 'bg-indigo-50/70 dark:bg-indigo-500/10' : ''
         }`}

@@ -76,10 +76,10 @@ function renderBoard() {
   )
 }
 
-function mockBoardGet(board = buildBoard()) {
+function mockBoardGet(board = buildBoard(), workspace = WORKSPACE) {
   api.get.mockImplementation((url) => {
     if (url === '/workspaces/1') {
-      return Promise.resolve({ data: { data: WORKSPACE } })
+      return Promise.resolve({ data: { data: workspace } })
     }
 
     if (url === '/workspaces/1/boards/5') {
@@ -128,6 +128,30 @@ describe('BoardPage', () => {
     renderBoard()
 
     expect(await screen.findByText('Tablero no encontrado')).toBeInTheDocument()
+  })
+
+  it('makes the list header draggable for admins', async () => {
+    mockBoardGet()
+
+    renderBoard()
+
+    expect(
+      await screen.findByRole('button', { name: 'Reordenar Por hacer' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Reordenar Hecho' })).toBeInTheDocument()
+  })
+
+  it('does not make list headers draggable for members', async () => {
+    mockBoardGet(buildBoard(), {
+      ...WORKSPACE,
+      role: 'member',
+      owner: { id: 99, name: 'Otra Persona' },
+    })
+
+    renderBoard()
+
+    expect(await screen.findByText('Preparar wireframes')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Reordenar Por hacer' })).not.toBeInTheDocument()
   })
 
   it('adds a task to a list', async () => {

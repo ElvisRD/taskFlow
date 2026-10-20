@@ -3,6 +3,7 @@ import {
   findListByTaskId,
   listDndId,
   parseDndId,
+  reorderLists,
   resolveList,
   taskDndId,
 } from '../dnd.js'
@@ -70,5 +71,28 @@ describe('resolveList', () => {
   it('returns null for unknown ids', () => {
     expect(resolveList(lists, 'list-999')).toBeNull()
     expect(resolveList(lists, 'task-999')).toBeNull()
+  })
+})
+
+describe('reorderLists', () => {
+  it('moves a list forward and normalizes positions', () => {
+    const next = reorderLists(lists, 10, 30)
+
+    expect(next.map((list) => list.id)).toEqual([20, 30, 10])
+    expect(next.map((list) => list.position)).toEqual([1, 2, 3])
+    expect(next[2].tasks).toBe(lists[0].tasks)
+  })
+
+  it('moves a list backward', () => {
+    const next = reorderLists(lists, 30, 10)
+
+    expect(next.map((list) => list.id)).toEqual([30, 10, 20])
+    expect(next.map((list) => list.position)).toEqual([1, 2, 3])
+  })
+
+  it('returns null for no-op or unknown lists', () => {
+    expect(reorderLists(lists, 10, 10)).toBeNull()
+    expect(reorderLists(lists, 999, 10)).toBeNull()
+    expect(reorderLists(lists, 10, 999)).toBeNull()
   })
 })

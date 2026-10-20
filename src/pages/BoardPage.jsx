@@ -9,7 +9,12 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
+import {
+  arrayMove,
+  horizontalListSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable'
 import { Avatar } from '../components/Avatar.jsx'
 import { PageContainer } from '../components/PageContainer.jsx'
 import { Alert } from '../components/ui/Alert.jsx'
@@ -23,7 +28,13 @@ import { TaskCard } from '../features/board/TaskCard.jsx'
 import { TaskDialog } from '../features/board/TaskDialog.jsx'
 import { useAuth } from '../hooks/useAuth.js'
 import { api, apiErrorMessage } from '../lib/api.js'
-import { findListByTaskId, parseDndId, resolveList } from '../features/board/dnd.js'
+import {
+  findListByTaskId,
+  listDndId,
+  parseDndId,
+  reorderLists,
+  resolveList,
+} from '../features/board/dnd.js'
 
 function snapshot(lists) {
   const map = {}
@@ -35,6 +46,44 @@ function snapshot(lists) {
   })
 
   return map
+}
+
+function ListPreview({ list }) {
+  return (
+    <div className="flex max-h-[70vh] w-72 shrink-0 flex-col overflow-hidden rounded-2xl bg-slate-50 shadow-xl ring-2 ring-indigo-400 dark:bg-zinc-900 dark:ring-indigo-500">
+      <header className="flex items-center justify-between gap-2 px-3 py-2.5">
+        <h3 className="truncate text-sm font-semibold text-slate-700 dark:text-zinc-300">
+          {list.name}
+        </h3>
+        <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-zinc-800 dark:text-zinc-300">
+          {list.tasks.length}
+        </span>
+      </header>
+
+      <div className="scrollbar-thin min-h-0 flex-1 space-y-2 overflow-hidden px-2.5 pb-2 pt-0.5">
+        {list.tasks.length > 0 ? (
+          list.tasks.map((task) => <TaskCard key={task.id} task={task} />)
+        ) : (
+          <p className="rounded-xl border border-dashed border-slate-300 px-3 py-6 text-center text-xs text-slate-500 dark:border-zinc-700 dark:text-zinc-400">
+            Sin tareas.
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function boardCollisionDetection(args) {
+  if (args.active?.data?.current?.type !== 'list') {
+    return closestCorners(args)
+  }
+
+  return closestCorners({
+    ...args,
+    droppableContainers: args.droppableContainers.filter(
+      (container) => container.data.current?.type === 'list',
+    ),
+  })
 }
 
 export function BoardPage() {
@@ -51,6 +100,7 @@ export function BoardPage() {
   const [notFound, setNotFound] = useState(false)
 
   const [activeTask, setActiveTask] = useState(null)
+  const [activeList, setActiveList] = useState(null)
   const [selectedTaskId, setSelectedTaskId] = useState(null)
 
   const [addingList, setAddingList] = useState(false)
@@ -65,6 +115,7 @@ export function BoardPage() {
   const [deletingBoard, setDeletingBoard] = useState(false)
 
   const serverSnapshotRef = useRef({})
+  const listPositionsRef = useRef({})
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -95,6 +146,9 @@ export function BoardPage() {
         setLists(loadedLists)
         setMembers(membersResponse.data.data ?? [])
         serverSnapshotRef.current = snapshot(loadedLists)
+        listPositionsRef.current = Object.fromEntries(
+          loadedLists.map((list, index) => [list.id, list.position ?? index + 1]),
+        )
       } catch (requestError) {
         if (requestError.response?.status === 404) {
           setNotFound(true)
@@ -183,8 +237,52 @@ export function BoardPage() {
     [loadBoard],
   )
 
+  const syncListPositions = useCallback(
+    async (nextLists) => {
+      const updates = []
+
+      nextLists.forEach((list, index) => {
+        const position = index + 1
+
+        if (listPositionsRef.current[list.id] !== position) {
+          updates.push({ id: list.id, position })
+        }
+      })
+
+      listPositionsRef.current = Object.fromEntries(
+        nextLists.map((list, index) => [list.id, index + 1]),
+      )
+
+      if (updates.length === 0) {
+        return
+      }
+
+      try {
+        await Promise.all(
+          updates.map((update) =>
+            api.patch(`/boards/${boardId}/lists/${update.id}`, {
+              position: update.position,
+            }),
+          ),
+        )
+      } catch (requestError) {
+        setError(apiErrorMessage(requestError))
+        loadBoard({ silent: true })
+      }
+    },
+    [boardId, loadBoard],
+  )
+
   const handleDragStart = (event) => {
-    const { id } = parseDndId(event.active.id)
+    const { type, id } = parseDndId(event.active.id)
+
+    if (type === 'list') {
+      setActiveTask(null)
+      setActiveList(lists.find((list) => list.id === id) ?? null)
+      return
+    }
+
+    setActiveList(null)
     const list = findListByTaskId(lists, id)
     setActiveTask(list?.tasks.find((task) => task.id === id) ?? null)
   }
@@ -196,7 +294,12 @@ export function BoardPage() {
       return
     }
 
-    const { id: activeTaskId } = parseDndId(active.id)
+    const { type, id: activeTaskId } = parseDndId(active.id)
+
+    if (type !== 'task') {
+      return
+    }
+
     const sourceList = findListByTaskId(lists, activeTaskId)
     const targetList = resolveList(lists, over.id)
 
@@ -242,12 +345,37 @@ export function BoardPage() {
   const handleDragEnd = (event) => {
     const { active, over } = event
     setActiveTask(null)
+    setActiveList(null)
 
     if (!over) {
       return
     }
 
-    const { id: activeTaskId } = parseDndId(active.id)
+    const { type, id: activeId } = parseDndId(active.id)
+
+    if (type === 'list') {
+      const targetList = resolveList(lists, over.id)
+
+      if (!targetList) {
+        return
+      }
+
+      const next = reorderLists(lists, activeId, targetList.id)
+
+      if (!next) {
+        return
+      }
+
+      setLists(next)
+      syncListPositions(next)
+      return
+    }
+
+    if (type !== 'task') {
+      return
+    }
+
+    const activeTaskId = activeId
     const sourceList = findListByTaskId(lists, activeTaskId)
     const targetList = resolveList(lists, over.id)
 
@@ -350,6 +478,7 @@ export function BoardPage() {
     try {
       await api.delete(`/boards/${boardId}/lists/${listToDelete.id}`)
       setLists((previous) => previous.filter((list) => list.id !== listToDelete.id))
+      delete listPositionsRef.current[listToDelete.id]
       setListToDelete(null)
     } catch (requestError) {
       setError(apiErrorMessage(requestError))
@@ -371,7 +500,12 @@ export function BoardPage() {
 
     try {
       const { data } = await api.post(`/boards/${boardId}/lists`, { name: trimmed })
-      setLists((previous) => [...previous, { ...data.data, tasks: data.data.tasks ?? [] }])
+      const createdList = { ...data.data, tasks: data.data.tasks ?? [] }
+      setLists((previous) => [...previous, createdList])
+      listPositionsRef.current = {
+        ...listPositionsRef.current,
+        [createdList.id]: createdList.position ?? lists.length + 1,
+      }
       setNewListName('')
       setAddingList(false)
     } catch (requestError) {
@@ -527,72 +661,84 @@ export function BoardPage() {
 
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={boardCollisionDetection}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
-        onDragCancel={() => setActiveTask(null)}
+        onDragCancel={() => {
+          setActiveTask(null)
+          setActiveList(null)
+        }}
       >
-        <div className="flex min-h-0 flex-1 items-start gap-4 overflow-x-auto pb-4">
-          {lists.map((list) => (
-            <BoardColumn
-              key={list.id}
-              list={list}
-              canManage={canManage}
-              onRename={handleRenameList}
-              onDelete={setListToDelete}
-              onAddTask={handleAddTask}
-              onOpenTask={(task) => setSelectedTaskId(task.id)}
-            />
-          ))}
+        <SortableContext
+          items={lists.map((list) => listDndId(list.id))}
+          strategy={horizontalListSortingStrategy}
+        >
+          <div className="flex min-h-0 flex-1 items-start gap-4 overflow-x-auto pb-4">
+            {lists.map((list) => (
+              <BoardColumn
+                key={list.id}
+                list={list}
+                canManage={canManage}
+                onRename={handleRenameList}
+                onDelete={setListToDelete}
+                onAddTask={handleAddTask}
+                onOpenTask={(task) => setSelectedTaskId(task.id)}
+              />
+            ))}
 
-          {canManage ? (
-            <div className="w-72 shrink-0">
-              {addingList ? (
-                <form
-                  onSubmit={handleCreateList}
-                  className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200 dark:bg-zinc-900 dark:ring-zinc-800"
-                >
-                  <input
-                    autoFocus
-                    value={newListName}
-                    onChange={(event) => setNewListName(event.target.value)}
-                    placeholder="Nombre de la lista"
-                    className={`${inputClass} text-sm`}
-                  />
-                  <div className="mt-2 flex items-center gap-2">
-                    <Button type="submit" size="sm" loading={creatingList}>
-                      Añadir lista
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setAddingList(false)
-                        setNewListName('')
-                      }}
-                    >
-                      Cancelar
-                    </Button>
-                  </div>
-                </form>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setAddingList(true)}
-                  className="flex w-full items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/50 px-3 py-3 text-sm font-medium text-slate-500 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:border-indigo-500 dark:hover:text-indigo-300"
-                >
-                  <IconPlus className="h-4 w-4" />
-                  Añadir lista
-                </button>
-              )}
-            </div>
-          ) : null}
-        </div>
+            {canManage ? (
+              <div className="w-72 shrink-0">
+                {addingList ? (
+                  <form
+                    onSubmit={handleCreateList}
+                    className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200 dark:bg-zinc-900 dark:ring-zinc-800"
+                  >
+                    <input
+                      autoFocus
+                      value={newListName}
+                      onChange={(event) => setNewListName(event.target.value)}
+                      placeholder="Nombre de la lista"
+                      className={`${inputClass} text-sm`}
+                    />
+                    <div className="mt-2 flex items-center gap-2">
+                      <Button type="submit" size="sm" loading={creatingList}>
+                        Añadir lista
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setAddingList(false)
+                          setNewListName('')
+                        }}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setAddingList(true)}
+                    className="flex w-full items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/50 px-3 py-3 text-sm font-medium text-slate-500 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:border-indigo-500 dark:hover:text-indigo-300"
+                  >
+                    <IconPlus className="h-4 w-4" />
+                    Añadir lista
+                  </button>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </SortableContext>
 
         <DragOverlay>
-          {activeTask ? <TaskCard task={activeTask} dragging /> : null}
+          {activeTask ? (
+            <TaskCard task={activeTask} dragging />
+          ) : activeList ? (
+            <ListPreview list={activeList} />
+          ) : null}
         </DragOverlay>
       </DndContext>
 

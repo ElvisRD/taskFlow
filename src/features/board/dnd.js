@@ -25,6 +25,25 @@ export function findListByTaskId(lists, taskId) {
 }
 
 /**
+ * Moves a list to the index of another list and normalizes positions.
+ * Returns null when the move is a no-op or either list is unknown.
+ */
+export function reorderLists(lists, activeListId, overListId) {
+  const oldIndex = lists.findIndex((list) => list.id === activeListId)
+  const newIndex = lists.findIndex((list) => list.id === overListId)
+
+  if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
+    return null
+  }
+
+  const next = [...lists]
+  const [moved] = next.splice(oldIndex, 1)
+  next.splice(newIndex, 0, moved)
+
+  return next.map((list, index) => ({ ...list, position: index + 1 }))
+}
+
+/**
  * Resolves the list targeted by a droppable id, whether it is a column
  * (`list-<id>`) or a task (`task-<id>`).
  */
