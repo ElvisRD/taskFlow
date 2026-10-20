@@ -4,32 +4,76 @@ import { Button } from '../../components/ui/Button.jsx'
 import { Field, inputClass } from '../../components/ui/Field.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { api, apiErrorMessage, validationErrors } from '../../lib/api.js'
+import { TEXT_LIMITS, validateWorkspaceForm } from '../../lib/validation.js'
 
 export function EditWorkspaceDialog({ open, workspace, onClose, onUpdated }) {
   const [form, setForm] = useState({ name: '', description: '' })
-  const [errors, setErrors] = useState({})
+  const [serverErrors, setServerErrors] = useState({})
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [showValidation, setShowValidation] = useState(false)
+  const [touched, setTouched] = useState({})
 
   useEffect(() => {
     if (open && workspace) {
       setForm({ name: workspace.name ?? '', description: workspace.description ?? '' })
-      setErrors({})
+      setServerErrors({})
       setMessage('')
+      setShowValidation(false)
+      setTouched({})
     }
   }, [open, workspace])
 
+  const clientErrors = validateWorkspaceForm(form)
+  const errors = {}
+
+  if ((showValidation || touched.name) && clientErrors.name) {
+    errors.name = clientErrors.name
+  } else if (serverErrors.name) {
+    errors.name = serverErrors.name
+  }
+
+  if ((showValidation || touched.description) && clientErrors.description) {
+    errors.description = clientErrors.description
+  } else if (serverErrors.description) {
+    errors.description = serverErrors.description
+  }
+
+  const update = (field, value) => {
+    setForm((previous) => ({ ...previous, [field]: value }))
+    setTouched((previous) => ({ ...previous, [field]: true }))
+    setServerErrors((previous) => {
+      if (!previous[field]) {
+        return previous
+      }
+
+      const next = { ...previous }
+      delete next[field]
+      return next
+    })
+    setMessage('')
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setSubmitting(true)
-    setErrors({})
+    setShowValidation(true)
     setMessage('')
+    setServerErrors({})
+
+    if (Object.keys(clientErrors).length > 0) {
+      return
+    }
+
+    setSubmitting(true)
 
     try {
-      const { data } = await api.patch(`/workspaces/${workspace.id}`, form)
+      const { data } = await api.patch(`/workspaces/${workspace.id}`, {
+        name: form.name.trim(),
+        description: form.description.trim(),
+      })
       onUpdated(data.data)
     } catch (error) {
-      setErrors(validationErrors(error))
+      setServerErrors(validationErrors(error))
       setMessage(apiErrorMessage(error))
     } finally {
       setSubmitting(false)
@@ -46,7 +90,9 @@ export function EditWorkspaceDialog({ open, workspace, onClose, onUpdated }) {
             id="edit-workspace-name"
             autoFocus
             value={form.name}
-            onChange={(event) => setForm((previous) => ({ ...previous, name: event.target.value }))}
+            maxLength={TEXT_LIMITS.workspaceName}
+            aria-invalid={errors.name ? 'true' : undefined}
+            onChange={(event) => update('name', event.target.value)}
             className={inputClass}
           />
         </Field>
@@ -56,10 +102,10 @@ export function EditWorkspaceDialog({ open, workspace, onClose, onUpdated }) {
             id="edit-workspace-description"
             rows={3}
             value={form.description}
-            onChange={(event) =>
-              setForm((previous) => ({ ...previous, description: event.target.value }))
-            }
-            className={inputClass}
+            maxLength={TEXT_LIMITS.workspaceDescription}
+            aria-invalid={errors.description ? 'true' : undefined}
+            onChange={(event) => update('description', event.target.value)}
+            className={`${inputClass} resize-none`}
           />
         </Field>
 
