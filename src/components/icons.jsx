@@ -8,6 +8,29 @@ const BASE = {
   'aria-hidden': 'true',
 }
 
+const SOLID_BASE = {
+  fill: 'currentColor',
+  viewBox: '0 0 20 20',
+  'aria-hidden': 'true',
+}
+
+export function IconLogo({ className = 'h-4 w-4' }) {
+  return (
+    <svg {...SOLID_BASE} className={className}>
+      <path d="M4 3.75A.75.75 0 0 1 4.75 3h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 4 3.75Z" />
+      <path d="M4 3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-4V4a1 1 0 0 0-1-1H4Zm10 6.5v4.25a.75.75 0 0 1-1.5 0V9.5H14Z" />
+    </svg>
+  )
+}
+
+export function IconLogoSimple({ className = 'h-5 w-5' }) {
+  return (
+    <svg {...SOLID_BASE} className={className}>
+      <path d="M4 3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-4V4a1 1 0 0 0-1-1H4Z" />
+    </svg>
+  )
+}
+
 export function IconChat({ className = 'h-4 w-4' }) {
   return (
     <svg {...BASE} className={className}>
@@ -73,6 +96,14 @@ export function IconX({ className = 'h-4 w-4' }) {
   )
 }
 
+export function IconClose({ className = 'h-5 w-5' }) {
+  return (
+    <svg {...SOLID_BASE} className={className}>
+      <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+    </svg>
+  )
+}
+
 export function IconDownload({ className = 'h-4 w-4' }) {
   return (
     <svg {...BASE} className={className}>
@@ -105,6 +136,22 @@ export function IconChevronDown({ className = 'h-4 w-4' }) {
   )
 }
 
+export function IconChevronLeft({ className = 'h-4 w-4' }) {
+  return (
+    <svg {...SOLID_BASE} className={className}>
+      <path d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" />
+    </svg>
+  )
+}
+
+export function IconLogout({ className = 'h-4 w-4' }) {
+  return (
+    <svg {...BASE} className={className}>
+      <path d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+    </svg>
+  )
+}
+
 export function IconSun({ className = 'h-4 w-4' }) {
   return (
     <svg {...BASE} className={className}>
@@ -133,6 +180,42 @@ export function IconUsers({ className = 'h-4 w-4' }) {
   return (
     <svg {...BASE} className={className}>
       <path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+    </svg>
+  )
+}
+
+export function IconUser({ className = 'h-4 w-4' }) {
+  return (
+    <svg {...SOLID_BASE} className={className}>
+      <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-6.5 8a6.5 6.5 0 1 1 13 0 .75.75 0 0 1-.75.75h-11.5A.75.75 0 0 1 3.5 16Z" />
+    </svg>
+  )
+}
+
+export function IconBoard({ className = 'h-4 w-4' }) {
+  return (
+    <svg {...SOLID_BASE} className={className}>
+      <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h4A1.5 1.5 0 0 1 10 4.5v11A1.5 1.5 0 0 1 8.5 17h-4A1.5 1.5 0 0 1 3 15.5v-11Zm9 0A1.5 1.5 0 0 1 13.5 3h2A1.5 1.5 0 0 1 17 4.5v6A1.5 1.5 0 0 1 15.5 12h-2A1.5 1.5 0 0 1 12 10.5v-6Z" />
+    </svg>
+  )
+}
+
+export function IconSpinner({ className = 'h-5 w-5' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"
+      />
     </svg>
   )
 }

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { IconLogoSimple } from './icons.jsx'
 import { ThemeToggle } from './ThemeToggle.jsx'
 
 export function AuthShell({ title, subtitle, children, footer }) {
@@ -11,9 +12,7 @@ export function AuthShell({ title, subtitle, children, footer }) {
       <div className="w-full max-w-md">
         <div className="mb-6 flex items-center justify-center gap-2 text-white">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500">
-            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path d="M4 3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-4V4a1 1 0 0 0-1-1H4Z" />
-            </svg>
+            <IconLogoSimple className="h-5 w-5" />
           </span>
           <span className="text-xl font-semibold tracking-tight">TaskFlow</span>
         </div>
