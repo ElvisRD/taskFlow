@@ -9,23 +9,29 @@ import { Modal } from '../components/ui/Modal.jsx'
 import { PageLoader } from '../components/ui/Spinner.jsx'
 import { api, apiErrorMessage, validationErrors } from '../lib/api.js'
 import { roleLabel } from '../lib/constants.js'
+import {
+  TEXT_LIMITS,
+  validateOptionalText,
+  validateRequiredText,
+} from '../lib/validation.js'
 
 const PER_PAGE = 12
-const WORKSPACE_NAME_MAX_LENGTH = 100
-const WORKSPACE_DESCRIPTION_MAX_LENGTH = 200
 
 function validateWorkspaceForm(form) {
   const errors = {}
-  const name = form.name.trim()
+  const nameError = validateRequiredText(form.name, 'El nombre', TEXT_LIMITS.workspaceName)
+  const descriptionError = validateOptionalText(
+    form.description,
+    'La descripción',
+    TEXT_LIMITS.workspaceDescription,
+  )
 
-  if (!name) {
-    errors.name = 'El nombre no es válido.'
-  } else if (name.length > WORKSPACE_NAME_MAX_LENGTH) {
-    errors.name = `El nombre no puede superar los ${WORKSPACE_NAME_MAX_LENGTH} caracteres.`
+  if (nameError) {
+    errors.name = nameError
   }
 
-  if (form.description.length > WORKSPACE_DESCRIPTION_MAX_LENGTH) {
-    errors.description = `La descripción no puede superar los ${WORKSPACE_DESCRIPTION_MAX_LENGTH} caracteres.`
+  if (descriptionError) {
+    errors.description = descriptionError
   }
 
   return errors
