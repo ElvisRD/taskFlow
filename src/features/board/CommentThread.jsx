@@ -6,6 +6,7 @@ import { inputClass } from '../../components/ui/Field.jsx'
 import { Spinner } from '../../components/ui/Spinner.jsx'
 import { api, apiErrorMessage } from '../../lib/api.js'
 import { formatDateTime } from '../../lib/format.js'
+import { TEXT_LIMITS, validateOptionalText } from '../../lib/validation.js'
 
 const CARD_STYLES = {
   parent: 'bg-slate-50 ring-slate-100 dark:bg-zinc-800/60 dark:ring-zinc-800',
@@ -89,6 +90,12 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
   const [replyBody, setReplyBody] = useState('')
   const [submittingReply, setSubmittingReply] = useState(false)
   const [expandedReplies, setExpandedReplies] = useState(() => new Set())
+  const bodyError = validateOptionalText(body, 'El comentario', TEXT_LIMITS.commentBody)
+  const replyError = validateOptionalText(
+    replyBody,
+    'La respuesta',
+    TEXT_LIMITS.commentBody,
+  )
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -115,7 +122,7 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
     event.preventDefault()
     const trimmed = body.trim()
 
-    if (!trimmed) {
+    if (!trimmed || bodyError) {
       return
     }
 
@@ -141,7 +148,7 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
     event.preventDefault()
     const trimmed = replyBody.trim()
 
-    if (!trimmed) {
+    if (!trimmed || replyError) {
       return
     }
 
@@ -235,18 +242,28 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
     <div className="space-y-3">
       {error ? <Alert>{error}</Alert> : null}
 
-      <form onSubmit={handleSubmit} className="flex items-start gap-2">
-        <textarea
-          rows={2}
-          maxLength={2000}
-          value={body}
-          onChange={(event) => setBody(event.target.value)}
-          placeholder="Escribe un comentario…"
-          className={`${inputClass} resize-none`}
-        />
-        <Button type="submit" size="sm" loading={submitting} disabled={!body.trim()}>
-          Enviar
-        </Button>
+      <form onSubmit={handleSubmit} className="space-y-1.5">
+        <div className="flex items-start gap-2">
+          <textarea
+            rows={2}
+            value={body}
+            aria-invalid={bodyError ? 'true' : undefined}
+            onChange={(event) => setBody(event.target.value)}
+            placeholder="Escribe un comentario…"
+            className={`${inputClass} resize-none`}
+          />
+          <Button
+            type="submit"
+            size="sm"
+            loading={submitting}
+            disabled={!body.trim() || Boolean(bodyError)}
+          >
+            Enviar
+          </Button>
+        </div>
+        {bodyError ? (
+          <p className="text-xs text-rose-600 dark:text-rose-400">{bodyError}</p>
+        ) : null}
       </form>
 
       {loading ? (
@@ -279,13 +296,18 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
                     >
                       <textarea
                         rows={2}
-                        maxLength={2000}
                         autoFocus
                         value={replyBody}
+                        aria-invalid={replyError ? 'true' : undefined}
                         onChange={(event) => setReplyBody(event.target.value)}
                         placeholder="Escribe una respuesta…"
                         className={`${inputClass} resize-none`}
                       />
+                      {replyError ? (
+                        <p className="text-xs text-rose-600 dark:text-rose-400">
+                          {replyError}
+                        </p>
+                      ) : null}
                       <div className="flex justify-end gap-2">
                         <Button
                           type="button"
@@ -300,7 +322,7 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
                           type="submit"
                           size="sm"
                           loading={submittingReply}
-                          disabled={!replyBody.trim()}
+                          disabled={!replyBody.trim() || Boolean(replyError)}
                         >
                           Enviar respuesta
                         </Button>

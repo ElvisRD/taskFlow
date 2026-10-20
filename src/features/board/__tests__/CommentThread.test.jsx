@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CommentThread } from '../CommentThread.jsx'
@@ -159,6 +159,48 @@ describe('CommentThread', () => {
     await user.type(screen.getByPlaceholderText('Escribe un comentario…'), '   ')
 
     expect(screen.getByRole('button', { name: 'Enviar' })).toBeDisabled()
+    expect(api.post).not.toHaveBeenCalled()
+  })
+
+  it('blocks comments over the length limit', async () => {
+    api.get.mockResolvedValue({ data: { data: [] } })
+
+    renderThread()
+    await screen.findByText('Todavía no hay comentarios.')
+
+    const body = screen.getByPlaceholderText('Escribe un comentario…')
+    fireEvent.change(body, { target: { value: 'a'.repeat(1000) } })
+
+    expect(
+      screen.queryByText('El comentario no puede superar los 1000 caracteres.'),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Enviar' })).toBeEnabled()
+
+    fireEvent.change(body, { target: { value: 'a'.repeat(1001) } })
+
+    expect(
+      screen.getByText('El comentario no puede superar los 1000 caracteres.'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Enviar' })).toBeDisabled()
+    expect(api.post).not.toHaveBeenCalled()
+  })
+
+  it('blocks replies over the length limit', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue({ data: { data: [COMMENTS[0]] } })
+
+    renderThread()
+    await screen.findByText('Comentario de Ana')
+
+    await user.click(screen.getByRole('button', { name: 'Responder' }))
+    fireEvent.change(screen.getByPlaceholderText('Escribe una respuesta…'), {
+      target: { value: 'a'.repeat(1001) },
+    })
+
+    expect(
+      screen.getByText('La respuesta no puede superar los 1000 caracteres.'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Enviar respuesta' })).toBeDisabled()
     expect(api.post).not.toHaveBeenCalled()
   })
 
