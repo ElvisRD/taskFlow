@@ -146,20 +146,26 @@ function WorkspaceCard({ workspace }) {
   return (
     <Link
       to={`/workspaces/${workspace.id}`}
-      className="group flex flex-col rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-indigo-200 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:ring-indigo-500/60"
+      className="group flex min-w-0 flex-col rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-indigo-200 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:ring-indigo-500/60"
     >
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="text-base font-semibold text-slate-900 group-hover:text-indigo-700 dark:text-zinc-100 dark:group-hover:text-indigo-300">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <h2
+          title={workspace.name}
+          className="min-w-0 flex-1 truncate text-base font-semibold text-slate-900 group-hover:text-indigo-700 dark:text-zinc-100 dark:group-hover:text-indigo-300"
+        >
           {workspace.name}
         </h2>
         {workspace.role ? (
-          <Badge className="bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-500/30">
+          <Badge className="shrink-0 bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-500/30">
             {roleLabel(workspace.role)}
           </Badge>
         ) : null}
       </div>
 
-      <p className="mt-2 line-clamp-2 flex-1 text-sm text-slate-500 dark:text-zinc-400">
+      <p
+        title={workspace.description || 'Sin descripción.'}
+        className="mt-2 line-clamp-2 flex-1 break-words text-sm text-slate-500 dark:text-zinc-400"
+      >
         {workspace.description || 'Sin descripción.'}
       </p>
 

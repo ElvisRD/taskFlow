@@ -51,11 +51,14 @@ function snapshot(lists) {
 function ListPreview({ list }) {
   return (
     <div className="flex max-h-[70vh] w-72 shrink-0 flex-col overflow-hidden rounded-2xl bg-slate-50 shadow-xl ring-2 ring-indigo-400 dark:bg-zinc-900 dark:ring-indigo-500">
-      <header className="flex items-center justify-between gap-2 px-3 py-2.5">
-        <h3 className="truncate text-sm font-semibold text-slate-700 dark:text-zinc-300">
+      <header className="flex min-w-0 items-center justify-between gap-2 px-3 py-2.5">
+        <h3
+          title={list.name}
+          className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-700 dark:text-zinc-300"
+        >
           {list.name}
         </h3>
-        <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-zinc-800 dark:text-zinc-300">
+        <span className="shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-zinc-800 dark:text-zinc-300">
           {list.tasks.length}
         </span>
       </header>
@@ -589,13 +592,13 @@ export function BoardPage() {
       </Link>
 
       <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
           <span
             className="mt-1.5 h-3.5 w-3.5 shrink-0 rounded-full"
             style={{ backgroundColor: board?.color || '#6366f1' }}
             aria-hidden="true"
           />
-          <div>
+          <div className="min-w-0 flex-1">
             {editingBoard ? (
               <input
                 autoFocus
@@ -616,7 +619,8 @@ export function BoardPage() {
               />
             ) : (
               <h1
-                className={`text-2xl font-semibold text-slate-900 dark:text-zinc-100 ${canManage ? 'cursor-text' : ''}`}
+                title={board?.name}
+                className={`truncate text-2xl font-semibold text-slate-900 dark:text-zinc-100 ${canManage ? 'cursor-text' : ''}`}
                 onClick={() => {
                   if (canManage) {
                     setEditingBoard(true)
@@ -626,7 +630,10 @@ export function BoardPage() {
                 {board?.name}
               </h1>
             )}
-            <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-zinc-400">
+            <p
+              title={board?.description || 'Sin descripción.'}
+              className="mt-1 line-clamp-2 max-w-2xl break-words text-sm text-slate-500 dark:text-zinc-400"
+            >
               {board?.description || 'Sin descripción.'}
             </p>
           </div>

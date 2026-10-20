@@ -116,7 +116,10 @@ export function BoardColumn({
               className={`${inputClass} min-w-0 flex-1 py-1 text-sm`}
             />
           ) : (
-            <h3 className="truncate text-sm font-semibold text-slate-700 dark:text-zinc-300">
+            <h3
+              title={list.name}
+              className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-700 dark:text-zinc-300"
+            >
               {list.name}
             </h3>
           )}

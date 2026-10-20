@@ -130,6 +130,35 @@ describe('BoardPage', () => {
     expect(await screen.findByText('Tablero no encontrado')).toBeInTheDocument()
   })
 
+  it('truncates long board and list names', async () => {
+    const longBoardName =
+      'Tablero con un nombre extremadamente largo que no debería desbordar el encabezado'
+    const longDescription =
+      'Una descripción de tablero muy larga que debería limitarse a dos líneas y terminar con puntos suspensivos sin desbordar el encabezado.'
+    const longListName =
+      'Lista con un nombre extremadamente largo que no debería desbordar la columna'
+    const board = buildBoard()
+
+    board.name = longBoardName
+    board.description = longDescription
+    board.lists[0].name = longListName
+
+    mockBoardGet(board)
+
+    renderBoard()
+
+    const boardHeading = await screen.findByRole('heading', { name: longBoardName })
+    const description = screen.getByText(longDescription)
+    const listHeading = screen.getByRole('heading', { name: longListName, level: 3 })
+
+    expect(boardHeading).toHaveClass('truncate')
+    expect(boardHeading).toHaveAttribute('title', longBoardName)
+    expect(description).toHaveClass('line-clamp-2', 'break-words')
+    expect(description).toHaveAttribute('title', longDescription)
+    expect(listHeading).toHaveClass('min-w-0', 'flex-1', 'truncate')
+    expect(listHeading).toHaveAttribute('title', longListName)
+  })
+
   it('makes the list header draggable for admins', async () => {
     mockBoardGet()
 

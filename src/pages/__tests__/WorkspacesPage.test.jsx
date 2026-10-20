@@ -86,6 +86,38 @@ describe('WorkspacesPage', () => {
     expect(screen.getByRole('button', { name: 'Crear workspace' })).toBeInTheDocument()
   })
 
+  it('truncates long names and descriptions', async () => {
+    const longName =
+      'Workspace con un nombre extremadamente largo que no debería desbordar la tarjeta'
+    const longDescription =
+      'Esta es una descripción muy larga que debería ocupar como máximo dos líneas y terminar con puntos suspensivos sin desbordar la tarjeta del workspace.'
+
+    api.get.mockResolvedValue(
+      pageResponse(
+        [
+          {
+            ...WORKSPACES[0],
+            name: longName,
+            description: longDescription,
+          },
+        ],
+        null,
+      ),
+    )
+
+    renderPage()
+
+    const name = await screen.findByRole('heading', { name: longName })
+    const card = name.closest('a')
+    const description = screen.getByText(longDescription)
+
+    expect(name).toHaveClass('min-w-0', 'truncate')
+    expect(name).toHaveAttribute('title', longName)
+    expect(card).toHaveClass('min-w-0')
+    expect(description).toHaveClass('line-clamp-2', 'break-words')
+    expect(description).toHaveAttribute('title', longDescription)
+  })
+
   it('creates a workspace and adds it to the list', async () => {
     const user = userEvent.setup()
     const created = {
