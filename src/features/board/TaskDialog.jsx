@@ -7,8 +7,33 @@ import { Modal } from '../../components/ui/Modal.jsx'
 import { Select } from '../../components/ui/Select.jsx'
 import { api, apiErrorMessage, validationErrors } from '../../lib/api.js'
 import { TASK_PRIORITIES } from '../../lib/constants.js'
+import {
+  TEXT_LIMITS,
+  validateOptionalText,
+  validateRequiredText,
+} from '../../lib/validation.js'
 import { AttachmentList } from './AttachmentList.jsx'
 import { CommentThread } from './CommentThread.jsx'
+
+function validateTaskForm(form) {
+  const errors = {}
+  const titleError = validateRequiredText(form.title, 'El título', TEXT_LIMITS.taskTitle)
+  const descriptionError = validateOptionalText(
+    form.description,
+    'La descripción',
+    TEXT_LIMITS.taskDescription,
+  )
+
+  if (titleError) {
+    errors.title = titleError
+  }
+
+  if (descriptionError) {
+    errors.description = descriptionError
+  }
+
+  return errors
+}
 
 export function TaskDialog({
   open,
@@ -24,7 +49,9 @@ export function TaskDialog({
   const [form, setForm] = useState(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [errors, setErrors] = useState({})
+  const [serverErrors, setServerErrors] = useState({})
+  const [showValidation, setShowValidation] = useState(false)
+  const [touched, setTouched] = useState({})
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -39,7 +66,9 @@ export function TaskDialog({
         completed: Boolean(task.is_completed),
       })
       setError('')
-      setErrors({})
+      setServerErrors({})
+      setShowValidation(false)
+      setTouched({})
     }
   }, [open, task])
 
@@ -48,16 +77,43 @@ export function TaskDialog({
   }
 
   const canDelete = isAdmin || task.creator?.id === currentUserId
+  const clientErrors = validateTaskForm(form)
+  const errors = { ...serverErrors }
+
+  if ((showValidation || touched.title) && clientErrors.title) {
+    errors.title = clientErrors.title
+  }
+
+  if ((showValidation || touched.description) && clientErrors.description) {
+    errors.description = clientErrors.description
+  }
 
   const update = (field, value) => {
     setForm((previous) => ({ ...previous, [field]: value }))
+    setTouched((previous) => ({ ...previous, [field]: true }))
+    setServerErrors((previous) => {
+      if (!previous[field]) {
+        return previous
+      }
+
+      const next = { ...previous }
+      delete next[field]
+      return next
+    })
+    setError('')
   }
 
   const handleSubmit = async (event) => {
     event?.preventDefault()
-    setSaving(true)
+    setShowValidation(true)
     setError('')
-    setErrors({})
+    setServerErrors({})
+
+    if (Object.keys(clientErrors).length > 0) {
+      return
+    }
+
+    setSaving(true)
 
     try {
       const { data } = await api.patch(`/tasks/${task.id}`, {
@@ -71,7 +127,7 @@ export function TaskDialog({
 
       onUpdated(data.data)
     } catch (requestError) {
-      setErrors(validationErrors(requestError))
+      setServerErrors(validationErrors(requestError))
       setError(apiErrorMessage(requestError))
     } finally {
       setSaving(false)
@@ -128,6 +184,7 @@ export function TaskDialog({
             <input
               id="task-title"
               value={form.title}
+              aria-invalid={errors.title ? 'true' : undefined}
               onChange={(event) => update('title', event.target.value)}
               className={inputClass}
             />
@@ -138,6 +195,7 @@ export function TaskDialog({
               id="task-description"
               rows={4}
               value={form.description}
+              aria-invalid={errors.description ? 'true' : undefined}
               onChange={(event) => update('description', event.target.value)}
               className={inputClass}
               placeholder="Añade más contexto…"

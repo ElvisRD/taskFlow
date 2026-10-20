@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -217,6 +217,70 @@ describe('BoardPage', () => {
 
     expect(await screen.findByText('Nueva lista')).toBeInTheDocument()
     expect(api.post).toHaveBeenCalledWith('/boards/5/lists', { name: 'Nueva lista' })
+  })
+
+  it('validates the list name before creating it', async () => {
+    const user = userEvent.setup()
+    mockBoardGet()
+
+    renderBoard()
+    await screen.findByRole('heading', { name: 'Sprint 1' })
+
+    await user.click(screen.getByRole('button', { name: 'Añadir lista' }))
+    const input = screen.getByPlaceholderText('Nombre de la lista')
+
+    fireEvent.change(input, { target: { value: 'a'.repeat(41) } })
+
+    expect(
+      screen.getByText('El nombre no puede superar los 40 caracteres.'),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Añadir lista' }))
+    expect(api.post).not.toHaveBeenCalled()
+
+    fireEvent.change(input, { target: { value: '   ' } })
+    await user.click(screen.getByRole('button', { name: 'Añadir lista' }))
+
+    expect(screen.getByText('El nombre no es válido.')).toBeInTheDocument()
+    expect(api.post).not.toHaveBeenCalled()
+  })
+
+  it('validates the list name when renaming', async () => {
+    const user = userEvent.setup()
+    mockBoardGet()
+
+    renderBoard()
+    await screen.findByText('Preparar wireframes')
+
+    await user.click(screen.getByRole('button', { name: 'Acciones de Por hacer' }))
+    await user.click(screen.getByRole('button', { name: 'Renombrar' }))
+
+    const input = screen.getByDisplayValue('Por hacer')
+    fireEvent.change(input, { target: { value: 'a'.repeat(41) } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(
+      screen.getByText('El nombre no puede superar los 40 caracteres.'),
+    ).toBeInTheDocument()
+    expect(api.patch).not.toHaveBeenCalled()
+  })
+
+  it('validates the quick task title', async () => {
+    mockBoardGet()
+
+    renderBoard()
+    await screen.findByText('Preparar wireframes')
+
+    const column = screen.getByText('Por hacer').closest('.max-h-full')
+    fireEvent.change(within(column).getByPlaceholderText('Añadir tarea…'), {
+      target: { value: 'a'.repeat(81) },
+    })
+
+    expect(
+      within(column).getByText('El título no puede superar los 80 caracteres.'),
+    ).toBeInTheDocument()
+    expect(within(column).getByRole('button', { name: 'Añadir tarea' })).toBeDisabled()
+    expect(api.post).not.toHaveBeenCalled()
   })
 
   it('renames the board with Enter', async () => {

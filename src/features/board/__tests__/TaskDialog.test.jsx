@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TaskDialog } from '../TaskDialog.jsx'
@@ -150,6 +150,40 @@ describe('TaskDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo guardar')
+  })
+
+  it('does not save an empty title', async () => {
+    const user = userEvent.setup()
+    renderDialog()
+
+    await user.clear(screen.getByLabelText('Título'))
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+
+    expect(await screen.findByText('El título no es válido.')).toBeInTheDocument()
+    expect(api.patch).not.toHaveBeenCalled()
+  })
+
+  it('validates title and description length limits', async () => {
+    const user = userEvent.setup()
+    renderDialog()
+
+    fireEvent.change(screen.getByLabelText('Título'), {
+      target: { value: 'a'.repeat(81) },
+    })
+    fireEvent.change(screen.getByLabelText('Descripción'), {
+      target: { value: 'b'.repeat(1001) },
+    })
+
+    expect(
+      screen.getByText('El título no puede superar los 80 caracteres.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('La descripción no puede superar los 1000 caracteres.'),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+
+    expect(api.patch).not.toHaveBeenCalled()
   })
 
   it('allows the creator to delete the task', async () => {

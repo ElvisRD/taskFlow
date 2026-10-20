@@ -28,6 +28,7 @@ import { TaskCard } from '../features/board/TaskCard.jsx'
 import { TaskDialog } from '../features/board/TaskDialog.jsx'
 import { useAuth } from '../hooks/useAuth.js'
 import { api, apiErrorMessage } from '../lib/api.js'
+import { TEXT_LIMITS, validateRequiredText } from '../lib/validation.js'
 import {
   findListByTaskId,
   listDndId,
@@ -108,6 +109,7 @@ export function BoardPage() {
 
   const [addingList, setAddingList] = useState(false)
   const [newListName, setNewListName] = useState('')
+  const [newListValidation, setNewListValidation] = useState(false)
   const [creatingList, setCreatingList] = useState(false)
   const [listToDelete, setListToDelete] = useState(null)
   const [deletingList, setDeletingList] = useState(false)
@@ -188,6 +190,9 @@ export function BoardPage() {
   }, [lists, selectedTaskId])
 
   const canManage = workspace?.owner?.id === user?.id || workspace?.role === 'admin'
+  const newListError = newListValidation
+    ? validateRequiredText(newListName, 'El nombre', TEXT_LIMITS.listName)
+    : ''
 
   // The owner may not be included in the member list; add them so tasks
   // can be assigned to them.
@@ -492,9 +497,16 @@ export function BoardPage() {
 
   const handleCreateList = async (event) => {
     event.preventDefault()
-    const trimmed = newListName.trim()
+    setNewListValidation(true)
 
-    if (!trimmed) {
+    const trimmed = newListName.trim()
+    const validationError = validateRequiredText(
+      newListName,
+      'El nombre',
+      TEXT_LIMITS.listName,
+    )
+
+    if (validationError) {
       return
     }
 
@@ -510,6 +522,7 @@ export function BoardPage() {
         [createdList.id]: createdList.position ?? lists.length + 1,
       }
       setNewListName('')
+      setNewListValidation(false)
       setAddingList(false)
     } catch (requestError) {
       setError(apiErrorMessage(requestError))
@@ -704,10 +717,19 @@ export function BoardPage() {
                     <input
                       autoFocus
                       value={newListName}
-                      onChange={(event) => setNewListName(event.target.value)}
+                      aria-invalid={newListError ? 'true' : undefined}
+                      onChange={(event) => {
+                        setNewListName(event.target.value)
+                        setNewListValidation(true)
+                      }}
                       placeholder="Nombre de la lista"
                       className={`${inputClass} text-sm`}
                     />
+                    {newListError ? (
+                      <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">
+                        {newListError}
+                      </p>
+                    ) : null}
                     <div className="mt-2 flex items-center gap-2">
                       <Button type="submit" size="sm" loading={creatingList}>
                         Añadir lista
@@ -719,6 +741,7 @@ export function BoardPage() {
                         onClick={() => {
                           setAddingList(false)
                           setNewListName('')
+                          setNewListValidation(false)
                         }}
                       >
                         Cancelar
@@ -728,7 +751,10 @@ export function BoardPage() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => setAddingList(true)}
+                    onClick={() => {
+                      setAddingList(true)
+                      setNewListValidation(false)
+                    }}
                     className="flex w-full items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/50 px-3 py-3 text-sm font-medium text-slate-500 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:border-indigo-500 dark:hover:text-indigo-300"
                   >
                     <IconPlus className="h-4 w-4" />

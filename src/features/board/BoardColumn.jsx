@@ -10,6 +10,7 @@ import { inputClass } from '../../components/ui/Field.jsx'
 import { IconDots, IconPlus } from '../../components/icons.jsx'
 import { SortableTaskCard } from './TaskCard.jsx'
 import { listDndId, taskDndId } from './dnd.js'
+import { TEXT_LIMITS, validateRequiredText } from '../../lib/validation.js'
 
 export function BoardColumn({
   list,
@@ -36,15 +37,31 @@ export function BoardColumn({
   const [menuOpen, setMenuOpen] = useState(false)
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(list.name)
+  const [renameError, setRenameError] = useState('')
   const [title, setTitle] = useState('')
+  const [taskValidation, setTaskValidation] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const canDrag = canManage && !editing
+  const taskError = taskValidation
+    ? validateRequiredText(title, 'El título', TEXT_LIMITS.taskTitle)
+    : ''
 
   const submitRename = async () => {
     const trimmed = name.trim()
+    const validationError = validateRequiredText(
+      name,
+      'El nombre',
+      TEXT_LIMITS.listName,
+    )
 
-    if (!trimmed || trimmed === list.name) {
+    if (validationError) {
+      setRenameError(validationError)
+      return
+    }
+
+    if (trimmed === list.name) {
       setName(list.name)
+      setRenameError('')
       setEditing(false)
       return
     }
@@ -55,14 +72,22 @@ export function BoardColumn({
       setName(list.name)
     }
 
+    setRenameError('')
     setEditing(false)
   }
 
   const submitAdd = async (event) => {
     event.preventDefault()
-    const trimmed = title.trim()
+    setTaskValidation(true)
 
-    if (!trimmed) {
+    const trimmed = title.trim()
+    const validationError = validateRequiredText(
+      title,
+      'El título',
+      TEXT_LIMITS.taskTitle,
+    )
+
+    if (validationError) {
       return
     }
 
@@ -73,6 +98,7 @@ export function BoardColumn({
 
       if (added) {
         setTitle('')
+        setTaskValidation(false)
       }
     } finally {
       setSubmitting(false)
@@ -98,23 +124,35 @@ export function BoardColumn({
           }`}
         >
           {editing ? (
-            <input
-              autoFocus
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              onBlur={submitRename}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  submitRename()
-                }
+            <div className="min-w-0 flex-1">
+              <input
+                autoFocus
+                value={name}
+                aria-invalid={renameError ? 'true' : undefined}
+                onChange={(event) => {
+                  setName(event.target.value)
+                  setRenameError('')
+                }}
+                onBlur={submitRename}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    submitRename()
+                  }
 
-                if (event.key === 'Escape') {
-                  setName(list.name)
-                  setEditing(false)
-                }
-              }}
-              className={`${inputClass} min-w-0 flex-1 py-1 text-sm`}
-            />
+                  if (event.key === 'Escape') {
+                    setName(list.name)
+                    setRenameError('')
+                    setEditing(false)
+                  }
+                }}
+                className={`${inputClass} min-w-0 flex-1 py-1 text-sm`}
+              />
+              {renameError ? (
+                <p className="mt-1 text-[11px] leading-tight text-rose-600 dark:text-rose-400">
+                  {renameError}
+                </p>
+              ) : null}
+            </div>
           ) : (
             <h3
               title={list.name}
@@ -155,6 +193,8 @@ export function BoardColumn({
                       className="block w-full px-3 py-1.5 text-left text-slate-700 hover:bg-slate-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
                       onClick={() => {
                         setMenuOpen(false)
+                        setName(list.name)
+                        setRenameError('')
                         setEditing(true)
                       }}
                     >
@@ -201,24 +241,35 @@ export function BoardColumn({
 
       <form
         onSubmit={submitAdd}
-        className="flex items-center gap-2 border-t border-slate-200 p-2 dark:border-zinc-800"
+        className="border-t border-slate-200 p-2 dark:border-zinc-800"
       >
-        <input
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder="Añadir tarea…"
-          className={`${inputClass} py-1.5 text-sm`}
-        />
-        <Button
-          type="submit"
-          size="sm"
-          loading={submitting}
-          disabled={!title.trim()}
-          aria-label="Añadir tarea"
-          className="shrink-0 px-2"
-        >
-          {submitting ? null : <IconPlus className="h-4 w-4" />}
-        </Button>
+        <div className="flex items-center gap-2">
+          <input
+            value={title}
+            aria-invalid={taskError ? 'true' : undefined}
+            onChange={(event) => {
+              setTitle(event.target.value)
+              setTaskValidation(true)
+            }}
+            placeholder="Añadir tarea…"
+            className={`${inputClass} py-1.5 text-sm`}
+          />
+          <Button
+            type="submit"
+            size="sm"
+            loading={submitting}
+            disabled={!title.trim() || Boolean(taskError)}
+            aria-label="Añadir tarea"
+            className="shrink-0 px-2"
+          >
+            {submitting ? null : <IconPlus className="h-4 w-4" />}
+          </Button>
+        </div>
+        {taskError ? (
+          <p className="mt-1 text-[11px] leading-tight text-rose-600 dark:text-rose-400">
+            {taskError}
+          </p>
+        ) : null}
       </form>
     </div>
   )
