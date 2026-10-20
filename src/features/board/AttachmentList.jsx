@@ -89,7 +89,7 @@ export function AttachmentList({ taskId, currentUserId, isAdmin, onCountChange }
     <div className="space-y-3">
       {error ? <Alert>{error}</Alert> : null}
 
-      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-3 text-sm text-slate-500 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-indigo-500 dark:hover:text-indigo-300">
+      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-3 text-sm text-slate-500 transition hover:border-indigo-300 hover:text-indigo-600 focus-within:border-indigo-600 focus-within:text-indigo-600 focus-within:ring-2 focus-within:ring-indigo-600/20 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-indigo-500 dark:hover:text-indigo-300 dark:focus-within:border-indigo-500 dark:focus-within:text-indigo-300 dark:focus-within:ring-indigo-500/20">
         <IconPaperclip className="h-4 w-4" />
         {uploading ? 'Subiendo…' : 'Adjuntar archivo (máx. 10 MB)'}
         <input
