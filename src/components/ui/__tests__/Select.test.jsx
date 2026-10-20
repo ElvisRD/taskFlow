@@ -32,6 +32,6 @@ describe('Select', () => {
 
     expect(select).toHaveClass('appearance-none', 'pr-10')
     expect(icon).toHaveAttribute('aria-hidden', 'true')
-    expect(icon).toHaveClass('pointer-events-none', 'right-3')
+    expect(icon).toHaveClass('pointer-events-none', 'right-2')
   })
 })
