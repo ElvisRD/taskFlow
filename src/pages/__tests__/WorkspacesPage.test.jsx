@@ -148,6 +148,165 @@ describe('WorkspacesPage', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
+  it('shows an error when the name is invalid', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue(pageResponse([WORKSPACES[0]], null))
+
+    renderPage()
+    await screen.findByText('Producto')
+
+    await user.click(screen.getByRole('button', { name: 'Nuevo workspace' }))
+    const name = screen.getByLabelText('Nombre')
+
+    await user.type(name, '   ')
+    await user.click(screen.getByRole('button', { name: 'Crear workspace' }))
+
+    expect(await screen.findByText('El nombre no es válido.')).toBeInTheDocument()
+    expect(api.post).not.toHaveBeenCalled()
+
+    await user.clear(name)
+    await user.type(name, 'Producto')
+
+    expect(screen.queryByText('El nombre no es válido.')).not.toBeInTheDocument()
+  })
+
+  it('shows an error when the name exceeds 100 characters', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue(pageResponse([WORKSPACES[0]], null))
+
+    renderPage()
+    await screen.findByText('Producto')
+
+    await user.click(screen.getByRole('button', { name: 'Nuevo workspace' }))
+    fireEvent.change(screen.getByLabelText('Nombre'), {
+      target: { value: 'a'.repeat(101) },
+    })
+
+    expect(
+      screen.getByText('El nombre no puede superar los 100 caracteres.'),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Crear workspace' }))
+
+    expect(api.post).not.toHaveBeenCalled()
+  })
+
+  it('shows an error when the description exceeds 200 characters', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue(pageResponse([WORKSPACES[0]], null))
+
+    renderPage()
+    await screen.findByText('Producto')
+
+    await user.click(screen.getByRole('button', { name: 'Nuevo workspace' }))
+    await user.type(screen.getByLabelText('Nombre'), 'Producto')
+
+    const description = screen.getByLabelText('Descripción')
+    expect(description).toHaveClass('resize-none')
+
+    fireEvent.change(description, {
+      target: { value: 'a'.repeat(201) },
+    })
+
+    expect(
+      screen.getByText('La descripción no puede superar los 200 caracteres.'),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Crear workspace' }))
+
+    expect(api.post).not.toHaveBeenCalled()
+  })
+
+  it('accepts the maximum lengths and trims the payload', async () => {
+    const user = userEvent.setup()
+    const longName = 'a'.repeat(100)
+    const longDescription = 'b'.repeat(200)
+    const created = {
+      id: 9,
+      name: longName,
+      description: longDescription,
+      role: 'admin',
+      members_count: 1,
+      boards_count: 0,
+    }
+
+    api.get.mockResolvedValue(pageResponse([WORKSPACES[0]], null))
+    api.post.mockResolvedValue({ data: { data: created } })
+
+    renderPage()
+    await screen.findByText('Producto')
+
+    await user.click(screen.getByRole('button', { name: 'Nuevo workspace' }))
+    fireEvent.change(screen.getByLabelText('Nombre'), {
+      target: { value: `  ${longName}  ` },
+    })
+    fireEvent.change(screen.getByLabelText('Descripción'), {
+      target: { value: longDescription },
+    })
+    await user.click(screen.getByRole('button', { name: 'Crear workspace' }))
+
+    expect(await screen.findByRole('heading', { name: longName })).toBeInTheDocument()
+    expect(api.post).toHaveBeenCalledWith('/workspaces', {
+      name: longName,
+      description: longDescription,
+    })
+    expect(
+      screen.queryByText('El nombre no puede superar los 100 caracteres.'),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('La descripción no puede superar los 200 caracteres.'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows field errors returned by the API', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue(pageResponse([WORKSPACES[0]], null))
+    api.post.mockRejectedValue({
+      response: {
+        status: 422,
+        data: {
+          message: 'Datos inválidos',
+          errors: { name: ['Ese nombre ya está en uso.'] },
+        },
+      },
+    })
+
+    renderPage()
+    await screen.findByText('Producto')
+
+    await user.click(screen.getByRole('button', { name: 'Nuevo workspace' }))
+    await user.type(screen.getByLabelText('Nombre'), 'Producto')
+    await user.click(screen.getByRole('button', { name: 'Crear workspace' }))
+
+    expect(await screen.findByText('Ese nombre ya está en uso.')).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Nuevo workspace' })).toBeInTheDocument()
+  })
+
+  it('keeps the form open when the API fails', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue(pageResponse([WORKSPACES[0]], null))
+    api.post.mockRejectedValue({
+      response: {
+        status: 500,
+        data: { message: 'No se pudo crear el workspace' },
+      },
+    })
+
+    renderPage()
+    await screen.findByText('Producto')
+
+    await user.click(screen.getByRole('button', { name: 'Nuevo workspace' }))
+    await user.type(screen.getByLabelText('Nombre'), 'Producto')
+    await user.click(screen.getByRole('button', { name: 'Crear workspace' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'No se pudo crear el workspace',
+    )
+    expect(screen.getByLabelText('Nombre')).toHaveValue('Producto')
+    expect(screen.getByRole('dialog', { name: 'Nuevo workspace' })).toBeInTheDocument()
+  })
+
   it('debounces search for 300 ms before calling the API', async () => {
     api.get.mockResolvedValue(pageResponse(WORKSPACES, null))
 

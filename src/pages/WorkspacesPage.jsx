@@ -11,6 +11,25 @@ import { api, apiErrorMessage, validationErrors } from '../lib/api.js'
 import { roleLabel } from '../lib/constants.js'
 
 const PER_PAGE = 12
+const WORKSPACE_NAME_MAX_LENGTH = 100
+const WORKSPACE_DESCRIPTION_MAX_LENGTH = 200
+
+function validateWorkspaceForm(form) {
+  const errors = {}
+  const name = form.name.trim()
+
+  if (!name) {
+    errors.name = 'El nombre no es válido.'
+  } else if (name.length > WORKSPACE_NAME_MAX_LENGTH) {
+    errors.name = `El nombre no puede superar los ${WORKSPACE_NAME_MAX_LENGTH} caracteres.`
+  }
+
+  if (form.description.length > WORKSPACE_DESCRIPTION_MAX_LENGTH) {
+    errors.description = `La descripción no puede superar los ${WORKSPACE_DESCRIPTION_MAX_LENGTH} caracteres.`
+  }
+
+  return errors
+}
 
 export function WorkspacesPage() {
   const [workspaces, setWorkspaces] = useState([])
@@ -209,29 +228,72 @@ function EmptyWorkspaces({ hasSearch, onCreate }) {
 
 function CreateWorkspaceDialog({ open, onClose, onCreated }) {
   const [form, setForm] = useState({ name: '', description: '' })
-  const [errors, setErrors] = useState({})
+  const [serverErrors, setServerErrors] = useState({})
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [showValidation, setShowValidation] = useState(false)
+  const [touched, setTouched] = useState({})
 
   useEffect(() => {
     if (open) {
       setForm({ name: '', description: '' })
-      setErrors({})
+      setServerErrors({})
       setMessage('')
+      setShowValidation(false)
+      setTouched({})
     }
   }, [open])
 
+  const clientErrors = validateWorkspaceForm(form)
+  const errors = {}
+
+  if ((showValidation || touched.name) && clientErrors.name) {
+    errors.name = clientErrors.name
+  } else if (serverErrors.name) {
+    errors.name = serverErrors.name
+  }
+
+  if ((showValidation || touched.description) && clientErrors.description) {
+    errors.description = clientErrors.description
+  } else if (serverErrors.description) {
+    errors.description = serverErrors.description
+  }
+
+  const update = (field, value) => {
+    setForm((previous) => ({ ...previous, [field]: value }))
+    setTouched((previous) => ({ ...previous, [field]: true }))
+    setServerErrors((previous) => {
+      if (!previous[field]) {
+        return previous
+      }
+
+      const next = { ...previous }
+      delete next[field]
+      return next
+    })
+    setMessage('')
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setSubmitting(true)
-    setErrors({})
+    setShowValidation(true)
     setMessage('')
+    setServerErrors({})
+
+    if (Object.keys(clientErrors).length > 0) {
+      return
+    }
+
+    setSubmitting(true)
 
     try {
-      const { data } = await api.post('/workspaces', form)
+      const { data } = await api.post('/workspaces', {
+        name: form.name.trim(),
+        description: form.description.trim(),
+      })
       onCreated(data.data)
     } catch (error) {
-      setErrors(validationErrors(error))
+      setServerErrors(validationErrors(error))
       setMessage(apiErrorMessage(error))
     } finally {
       setSubmitting(false)
@@ -248,7 +310,8 @@ function CreateWorkspaceDialog({ open, onClose, onCreated }) {
             id="workspace-name"
             autoFocus
             value={form.name}
-            onChange={(event) => setForm((previous) => ({ ...previous, name: event.target.value }))}
+            aria-invalid={errors.name ? 'true' : undefined}
+            onChange={(event) => update('name', event.target.value)}
             className={inputClass}
             placeholder="Equipo de producto"
           />
@@ -259,10 +322,9 @@ function CreateWorkspaceDialog({ open, onClose, onCreated }) {
             id="workspace-description"
             rows={3}
             value={form.description}
-            onChange={(event) =>
-              setForm((previous) => ({ ...previous, description: event.target.value }))
-            }
-            className={inputClass}
+            aria-invalid={errors.description ? 'true' : undefined}
+            onChange={(event) => update('description', event.target.value)}
+            className={`${inputClass} resize-none`}
             placeholder="¿Para qué usaréis este espacio?"
           />
         </Field>
