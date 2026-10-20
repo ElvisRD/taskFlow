@@ -97,7 +97,7 @@ export function MembersPanel({ workspaceId, canManage, ownerId }) {
           <Spinner className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
         </div>
       ) : (
-        <ul className="divide-y divide-slate-100 dark:divide-zinc-800">
+        <ul className="max-h-96 divide-y divide-slate-100 overflow-y-auto overscroll-contain pr-1 dark:divide-zinc-800">
           {members.map((member) => {
             const isOwner = member.id === ownerId
 

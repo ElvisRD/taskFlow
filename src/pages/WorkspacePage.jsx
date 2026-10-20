@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PageContainer } from '../components/PageContainer.jsx'
+import { IconChevronLeft } from '../components/icons.jsx'
 import { Alert } from '../components/ui/Alert.jsx'
 import { Badge } from '../components/ui/Badge.jsx'
 import { Button } from '../components/ui/Button.jsx'
@@ -105,18 +106,16 @@ export function WorkspacePage() {
         to="/workspaces"
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-100"
       >
-        <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" />
-        </svg>
+        <IconChevronLeft className="h-4 w-4" />
         Workspaces
       </Link>
 
       {error ? <Alert className="mb-4">{error}</Alert> : null}
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+        <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-zinc-100">
+            <h1 className="min-w-0 break-words text-2xl font-semibold text-slate-900 dark:text-zinc-100">
               {workspace.name}
             </h1>
             {workspace.role ? (
@@ -125,7 +124,7 @@ export function WorkspacePage() {
               </Badge>
             ) : null}
           </div>
-          <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-zinc-400">
+          <p className="mt-1 max-w-2xl break-words text-sm text-slate-500 dark:text-zinc-400">
             {workspace.description || 'Sin descripción.'}
           </p>
           <p className="mt-2 text-xs text-slate-500 dark:text-zinc-400">
