@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageContainer } from '../components/PageContainer.jsx'
+import { IconBoard, IconUser } from '../components/icons.jsx'
 import { Badge } from '../components/ui/Badge.jsx'
 import { Alert } from '../components/ui/Alert.jsx'
 import { Button } from '../components/ui/Button.jsx'
@@ -9,33 +10,9 @@ import { Modal } from '../components/ui/Modal.jsx'
 import { PageLoader } from '../components/ui/Spinner.jsx'
 import { api, apiErrorMessage, validationErrors } from '../lib/api.js'
 import { roleLabel } from '../lib/constants.js'
-import {
-  TEXT_LIMITS,
-  validateOptionalText,
-  validateRequiredText,
-} from '../lib/validation.js'
+import { TEXT_LIMITS, validateWorkspaceForm } from '../lib/validation.js'
 
 const PER_PAGE = 12
-
-function validateWorkspaceForm(form) {
-  const errors = {}
-  const nameError = validateRequiredText(form.name, 'El nombre', TEXT_LIMITS.workspaceName)
-  const descriptionError = validateOptionalText(
-    form.description,
-    'La descripción',
-    TEXT_LIMITS.workspaceDescription,
-  )
-
-  if (nameError) {
-    errors.name = nameError
-  }
-
-  if (descriptionError) {
-    errors.description = descriptionError
-  }
-
-  return errors
-}
 
 export function WorkspacesPage() {
   const [workspaces, setWorkspaces] = useState([])
@@ -105,7 +82,10 @@ export function WorkspacesPage() {
           <input
             type="search"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            maxLength={TEXT_LIMITS.search}
+            onChange={(event) =>
+              setSearch(event.target.value.slice(0, TEXT_LIMITS.search))
+            }
             placeholder="Buscar…"
             className={`${inputClass} sm:w-64`}
           />
@@ -196,15 +176,11 @@ function WorkspaceCard({ workspace }) {
 
       <div className="mt-4 flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
         <span className="inline-flex items-center gap-1.5">
-          <svg className="h-4 w-4 text-slate-400 dark:text-zinc-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-6.5 8a6.5 6.5 0 1 1 13 0 .75.75 0 0 1-.75.75h-11.5A.75.75 0 0 1 3.5 16Z" />
-          </svg>
+          <IconUser className="h-4 w-4 text-slate-400 dark:text-zinc-400" />
           {workspace.members_count ?? 0} miembros
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <svg className="h-4 w-4 text-slate-400 dark:text-zinc-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h4A1.5 1.5 0 0 1 10 4.5v11A1.5 1.5 0 0 1 8.5 17h-4A1.5 1.5 0 0 1 3 15.5v-11Zm9 0A1.5 1.5 0 0 1 13.5 3h2A1.5 1.5 0 0 1 17 4.5v6A1.5 1.5 0 0 1 15.5 12h-2A1.5 1.5 0 0 1 12 10.5v-6Z" />
-          </svg>
+          <IconBoard className="h-4 w-4 text-slate-400 dark:text-zinc-400" />
           {workspace.boards_count ?? 0} tableros
         </span>
       </div>
@@ -316,6 +292,7 @@ function CreateWorkspaceDialog({ open, onClose, onCreated }) {
             id="workspace-name"
             autoFocus
             value={form.name}
+            maxLength={TEXT_LIMITS.workspaceName}
             aria-invalid={errors.name ? 'true' : undefined}
             onChange={(event) => update('name', event.target.value)}
             className={inputClass}
@@ -328,6 +305,7 @@ function CreateWorkspaceDialog({ open, onClose, onCreated }) {
             id="workspace-description"
             rows={3}
             value={form.description}
+            maxLength={TEXT_LIMITS.workspaceDescription}
             aria-invalid={errors.description ? 'true' : undefined}
             onChange={(event) => update('description', event.target.value)}
             className={`${inputClass} resize-none`}

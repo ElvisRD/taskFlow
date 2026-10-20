@@ -168,14 +168,14 @@ describe('TaskDialog', () => {
     renderDialog()
 
     fireEvent.change(screen.getByLabelText('Título'), {
-      target: { value: 'a'.repeat(81) },
+      target: { value: 'a'.repeat(41) },
     })
     fireEvent.change(screen.getByLabelText('Descripción'), {
       target: { value: 'b'.repeat(1001) },
     })
 
     expect(
-      screen.getByText('El título no puede superar los 80 caracteres.'),
+      screen.getByText('El título no puede superar los 40 caracteres.'),
     ).toBeInTheDocument()
     expect(
       screen.getByText('La descripción no puede superar los 1000 caracteres.'),
@@ -184,6 +184,20 @@ describe('TaskDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
 
     expect(api.patch).not.toHaveBeenCalled()
+  })
+
+  it('caps the task title input at 40 characters', async () => {
+    const user = userEvent.setup()
+    renderDialog()
+
+    const title = screen.getByLabelText('Título')
+
+    expect(title).toHaveAttribute('maxlength', '40')
+
+    await user.clear(title)
+    await user.type(title, 'a'.repeat(45))
+
+    expect(title).toHaveValue('a'.repeat(40))
   })
 
   it('allows the creator to delete the task', async () => {

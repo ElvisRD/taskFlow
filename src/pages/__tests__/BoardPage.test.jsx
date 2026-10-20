@@ -273,14 +273,31 @@ describe('BoardPage', () => {
 
     const column = screen.getByText('Por hacer').closest('.max-h-full')
     fireEvent.change(within(column).getByPlaceholderText('Añadir tarea…'), {
-      target: { value: 'a'.repeat(81) },
+      target: { value: 'a'.repeat(41) },
     })
 
     expect(
-      within(column).getByText('El título no puede superar los 80 caracteres.'),
+      within(column).getByText('El título no puede superar los 40 caracteres.'),
     ).toBeInTheDocument()
     expect(within(column).getByRole('button', { name: 'Añadir tarea' })).toBeDisabled()
     expect(api.post).not.toHaveBeenCalled()
+  })
+
+  it('caps the quick task title input at 40 characters', async () => {
+    const user = userEvent.setup()
+    mockBoardGet()
+
+    renderBoard()
+    await screen.findByText('Preparar wireframes')
+
+    const column = screen.getByText('Por hacer').closest('.max-h-full')
+    const input = within(column).getByPlaceholderText('Añadir tarea…')
+
+    expect(input).toHaveAttribute('maxlength', '40')
+
+    await user.type(input, 'a'.repeat(45))
+
+    expect(input).toHaveValue('a'.repeat(40))
   })
 
   it('renames the board with Enter', async () => {

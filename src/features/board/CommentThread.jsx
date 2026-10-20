@@ -247,6 +247,7 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
           <textarea
             rows={2}
             value={body}
+            maxLength={TEXT_LIMITS.commentBody}
             aria-invalid={bodyError ? 'true' : undefined}
             onChange={(event) => setBody(event.target.value)}
             placeholder="Escribe un comentario…"
@@ -298,6 +299,7 @@ export function CommentThread({ taskId, currentUserId, isAdmin, onCountChange })
                         rows={2}
                         autoFocus
                         value={replyBody}
+                        maxLength={TEXT_LIMITS.commentBody}
                         aria-invalid={replyError ? 'true' : undefined}
                         onChange={(event) => setReplyBody(event.target.value)}
                         placeholder="Escribe una respuesta…"

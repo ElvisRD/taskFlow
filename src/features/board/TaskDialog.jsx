@@ -184,6 +184,7 @@ export function TaskDialog({
             <input
               id="task-title"
               value={form.title}
+              maxLength={TEXT_LIMITS.taskTitle}
               aria-invalid={errors.title ? 'true' : undefined}
               onChange={(event) => update('title', event.target.value)}
               className={inputClass}
@@ -195,6 +196,7 @@ export function TaskDialog({
               id="task-description"
               rows={4}
               value={form.description}
+              maxLength={TEXT_LIMITS.taskDescription}
               aria-invalid={errors.description ? 'true' : undefined}
               onChange={(event) => update('description', event.target.value)}
               className={inputClass}

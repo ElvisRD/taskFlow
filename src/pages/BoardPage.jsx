@@ -616,6 +616,7 @@ export function BoardPage() {
               <input
                 autoFocus
                 value={boardName}
+                maxLength={TEXT_LIMITS.boardName}
                 onChange={(event) => setBoardName(event.target.value)}
                 onBlur={handleRenameBoard}
                 onKeyDown={(event) => {
@@ -717,6 +718,7 @@ export function BoardPage() {
                     <input
                       autoFocus
                       value={newListName}
+                      maxLength={TEXT_LIMITS.listName}
                       aria-invalid={newListError ? 'true' : undefined}
                       onChange={(event) => {
                         setNewListName(event.target.value)

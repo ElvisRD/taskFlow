@@ -169,17 +169,17 @@ describe('CommentThread', () => {
     await screen.findByText('Todavía no hay comentarios.')
 
     const body = screen.getByPlaceholderText('Escribe un comentario…')
-    fireEvent.change(body, { target: { value: 'a'.repeat(1000) } })
+    fireEvent.change(body, { target: { value: 'a'.repeat(300) } })
 
     expect(
-      screen.queryByText('El comentario no puede superar los 1000 caracteres.'),
+      screen.queryByText('El comentario no puede superar los 300 caracteres.'),
     ).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Enviar' })).toBeEnabled()
 
-    fireEvent.change(body, { target: { value: 'a'.repeat(1001) } })
+    fireEvent.change(body, { target: { value: 'a'.repeat(301) } })
 
     expect(
-      screen.getByText('El comentario no puede superar los 1000 caracteres.'),
+      screen.getByText('El comentario no puede superar los 300 caracteres.'),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Enviar' })).toBeDisabled()
     expect(api.post).not.toHaveBeenCalled()
@@ -194,14 +194,36 @@ describe('CommentThread', () => {
 
     await user.click(screen.getByRole('button', { name: 'Responder' }))
     fireEvent.change(screen.getByPlaceholderText('Escribe una respuesta…'), {
-      target: { value: 'a'.repeat(1001) },
+      target: { value: 'a'.repeat(301) },
     })
 
     expect(
-      screen.getByText('La respuesta no puede superar los 1000 caracteres.'),
+      screen.getByText('La respuesta no puede superar los 300 caracteres.'),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Enviar respuesta' })).toBeDisabled()
     expect(api.post).not.toHaveBeenCalled()
+  })
+
+  it('caps comments and replies at 300 characters', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue({ data: { data: [COMMENTS[0]] } })
+
+    renderThread()
+    await screen.findByText('Comentario de Ana')
+
+    const body = screen.getByPlaceholderText('Escribe un comentario…')
+    expect(body).toHaveAttribute('maxlength', '300')
+
+    await user.type(body, 'a'.repeat(301))
+    expect(body).toHaveValue('a'.repeat(300))
+
+    await user.click(screen.getByRole('button', { name: 'Responder' }))
+
+    const reply = screen.getByPlaceholderText('Escribe una respuesta…')
+    expect(reply).toHaveAttribute('maxlength', '300')
+
+    await user.type(reply, 'b'.repeat(301))
+    expect(reply).toHaveValue('b'.repeat(300))
   })
 
   it('deletes your own comment', async () => {

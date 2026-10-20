@@ -122,6 +122,7 @@ export function CreateBoardDialog({ open, workspaceId, onClose, onCreated }) {
             id="board-name"
             autoFocus
             value={form.name}
+            maxLength={TEXT_LIMITS.boardName}
             aria-invalid={errors.name ? 'true' : undefined}
             onChange={(event) => update('name', event.target.value)}
             className={inputClass}
@@ -134,6 +135,7 @@ export function CreateBoardDialog({ open, workspaceId, onClose, onCreated }) {
             id="board-description"
             rows={3}
             value={form.description}
+            maxLength={TEXT_LIMITS.boardDescription}
             aria-invalid={errors.description ? 'true' : undefined}
             onChange={(event) => update('description', event.target.value)}
             className={inputClass}

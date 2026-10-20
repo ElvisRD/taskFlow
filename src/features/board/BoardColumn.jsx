@@ -128,6 +128,7 @@ export function BoardColumn({
               <input
                 autoFocus
                 value={name}
+                maxLength={TEXT_LIMITS.listName}
                 aria-invalid={renameError ? 'true' : undefined}
                 onChange={(event) => {
                   setName(event.target.value)
@@ -246,6 +247,7 @@ export function BoardColumn({
         <div className="flex items-center gap-2">
           <input
             value={title}
+            maxLength={TEXT_LIMITS.taskTitle}
             aria-invalid={taskError ? 'true' : undefined}
             onChange={(event) => {
               setTitle(event.target.value)

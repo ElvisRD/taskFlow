@@ -1,5 +1,26 @@
 import { describe, expect, it } from 'vitest'
-import { validateOptionalText, validateRequiredText } from '../validation.js'
+import {
+  TEXT_LIMITS,
+  validateOptionalText,
+  validateRequiredText,
+  validateWorkspaceForm,
+} from '../validation.js'
+
+describe('TEXT_LIMITS', () => {
+  it('defines the shared input limits', () => {
+    expect(TEXT_LIMITS).toEqual({
+      workspaceName: 30,
+      workspaceDescription: 200,
+      boardName: 30,
+      boardDescription: 100,
+      listName: 40,
+      taskTitle: 40,
+      taskDescription: 1000,
+      commentBody: 300,
+      search: 20,
+    })
+  })
+})
 
 describe('validateRequiredText', () => {
   it('rejects empty and whitespace-only values', () => {
@@ -28,5 +49,34 @@ describe('validateOptionalText', () => {
     expect(validateOptionalText('a'.repeat(101), 'La descripción', 100)).toBe(
       'La descripción no puede superar los 100 caracteres.',
     )
+  })
+})
+
+describe('validateWorkspaceForm', () => {
+  it('validates the workspace name and description limits', () => {
+    expect(
+      validateWorkspaceForm({
+        name: 'a'.repeat(31),
+        description: 'b'.repeat(201),
+      }),
+    ).toEqual({
+      name: 'El nombre no puede superar los 30 caracteres.',
+      description: 'La descripción no puede superar los 200 caracteres.',
+    })
+  })
+
+  it('requires a non-empty name', () => {
+    expect(validateWorkspaceForm({ name: '   ', description: '' })).toEqual({
+      name: 'El nombre no es válido.',
+    })
+  })
+
+  it('accepts values within the limits', () => {
+    expect(
+      validateWorkspaceForm({
+        name: 'Producto',
+        description: 'Equipo de producto',
+      }),
+    ).toEqual({})
   })
 })

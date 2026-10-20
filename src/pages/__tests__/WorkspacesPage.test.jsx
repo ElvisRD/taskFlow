@@ -170,7 +170,7 @@ describe('WorkspacesPage', () => {
     expect(screen.queryByText('El nombre no es válido.')).not.toBeInTheDocument()
   })
 
-  it('shows an error when the name exceeds 100 characters', async () => {
+  it('shows an error when the name exceeds 30 characters', async () => {
     const user = userEvent.setup()
     api.get.mockResolvedValue(pageResponse([WORKSPACES[0]], null))
 
@@ -178,12 +178,13 @@ describe('WorkspacesPage', () => {
     await screen.findByText('Producto')
 
     await user.click(screen.getByRole('button', { name: 'Nuevo workspace' }))
+    expect(screen.getByLabelText('Nombre')).toHaveAttribute('maxlength', '30')
     fireEvent.change(screen.getByLabelText('Nombre'), {
-      target: { value: 'a'.repeat(101) },
+      target: { value: 'a'.repeat(31) },
     })
 
     expect(
-      screen.getByText('El nombre no puede superar los 100 caracteres.'),
+      screen.getByText('El nombre no puede superar los 30 caracteres.'),
     ).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Crear workspace' }))
@@ -203,6 +204,7 @@ describe('WorkspacesPage', () => {
 
     const description = screen.getByLabelText('Descripción')
     expect(description).toHaveClass('resize-none')
+    expect(description).toHaveAttribute('maxlength', '200')
 
     fireEvent.change(description, {
       target: { value: 'a'.repeat(201) },
@@ -219,7 +221,7 @@ describe('WorkspacesPage', () => {
 
   it('accepts the maximum lengths and trims the payload', async () => {
     const user = userEvent.setup()
-    const longName = 'a'.repeat(100)
+    const longName = 'a'.repeat(30)
     const longDescription = 'b'.repeat(200)
     const created = {
       id: 9,
@@ -251,7 +253,7 @@ describe('WorkspacesPage', () => {
       description: longDescription,
     })
     expect(
-      screen.queryByText('El nombre no puede superar los 100 caracteres.'),
+      screen.queryByText('El nombre no puede superar los 30 caracteres.'),
     ).not.toBeInTheDocument()
     expect(
       screen.queryByText('La descripción no puede superar los 200 caracteres.'),
@@ -332,6 +334,21 @@ describe('WorkspacesPage', () => {
 
     expect(api.get).toHaveBeenCalledTimes(2)
     expect(api.get.mock.calls.at(-1)[1].params.search).toBe('producto')
+  })
+
+  it('limits the search input to 20 characters', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue(pageResponse([WORKSPACES[0]], null))
+
+    renderPage()
+    await screen.findByText('Producto')
+
+    const search = screen.getByPlaceholderText('Buscar…')
+    expect(search.maxLength).toBe(20)
+
+    await user.type(search, 'a'.repeat(25))
+
+    expect(search).toHaveValue('a'.repeat(20))
   })
 
   it('paginates results and disables buttons at the extremes', async () => {

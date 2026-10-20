@@ -1,12 +1,13 @@
 export const TEXT_LIMITS = {
-  workspaceName: 100,
+  workspaceName: 30,
   workspaceDescription: 200,
   boardName: 30,
   boardDescription: 100,
   listName: 40,
-  taskTitle: 80,
+  taskTitle: 40,
   taskDescription: 1000,
-  commentBody: 1000,
+  commentBody: 300,
+  search: 20,
 }
 
 export function validateRequiredText(value, label, maxLength) {
@@ -29,4 +30,24 @@ export function validateOptionalText(value, label, maxLength) {
   }
 
   return ''
+}
+
+export function validateWorkspaceForm(form) {
+  const errors = {}
+  const nameError = validateRequiredText(form.name, 'El nombre', TEXT_LIMITS.workspaceName)
+  const descriptionError = validateOptionalText(
+    form.description,
+    'La descripción',
+    TEXT_LIMITS.workspaceDescription,
+  )
+
+  if (nameError) {
+    errors.name = nameError
+  }
+
+  if (descriptionError) {
+    errors.description = descriptionError
+  }
+
+  return errors
 }
