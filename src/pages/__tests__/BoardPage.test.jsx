@@ -58,9 +58,9 @@ function buildBoard() {
   }
 }
 
-function renderBoard() {
+function renderBoard(initialEntry = '/workspaces/1/boards/5') {
   return render(
-    <MemoryRouter initialEntries={['/workspaces/1/boards/5']}>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <AuthContext.Provider
         value={{ user: { id: 1, name: 'Ana Propietaria' }, status: 'authenticated' }}
       >
@@ -120,6 +120,17 @@ describe('BoardPage', () => {
     expect(api.get).toHaveBeenCalledWith('/workspaces/1')
     expect(api.get).toHaveBeenCalledWith('/workspaces/1/boards/5')
     expect(api.get).toHaveBeenCalledWith('/workspaces/1/members')
+  })
+
+  it('opens the task from the task query parameter', async () => {
+    mockBoardGet()
+
+    renderBoard('/workspaces/1/boards/5?task=100')
+
+    expect(
+      await screen.findByRole('dialog', { name: 'Detalle de la tarea' }),
+    ).toBeInTheDocument()
+    expect(screen.getByLabelText('Título')).toHaveValue('Preparar wireframes')
   })
 
   it('shows "Tablero no encontrado" on a 404', async () => {

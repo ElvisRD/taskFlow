@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import { Avatar } from './Avatar.jsx'
 import { ThemeToggle } from './ThemeToggle.jsx'
+import { NotificationBell } from '../features/notifications/NotificationBell.jsx'
 import { IconChevronDown, IconLogo, IconLogout } from './icons.jsx'
 
 export function Layout() {
@@ -75,6 +76,7 @@ export function Layout() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <NotificationBell />
 
             <div ref={menuRef} className="relative">
               <button

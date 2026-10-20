@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatBytes, formatDate, formatDateTime, initials } from '../format.js'
+import { formatBytes, formatDate, formatDateTime, formatRelativeTime, initials } from '../format.js'
 
 describe('formatDate', () => {
   it('returns null for empty or invalid values', () => {
@@ -37,6 +37,25 @@ describe('formatDateTime', () => {
 
     expect(result).toContain('19')
     expect(result).toMatch(/\d{1,2}:\d{2}/)
+  })
+})
+
+describe('formatRelativeTime', () => {
+  const now = new Date('2026-10-20T12:00:00Z')
+
+  it('returns an empty string for empty or invalid values', () => {
+    expect(formatRelativeTime(null, now)).toBe('')
+    expect(formatRelativeTime('', now)).toBe('')
+    expect(formatRelativeTime('not-a-date', now)).toBe('')
+  })
+
+  it('formats recent dates in Spanish', () => {
+    expect(formatRelativeTime('2026-10-20T11:55:00Z', now)).toBe('hace 5 minutos')
+    expect(formatRelativeTime('2026-10-20T10:00:00Z', now)).toBe('hace 2 horas')
+    expect(formatRelativeTime('2026-10-18T12:00:00Z', now)).toBe('anteayer')
+    expect(formatRelativeTime('2026-10-20T12:00:10Z', now)).toBe(
+      'dentro de 10 segundos',
+    )
   })
 })
 

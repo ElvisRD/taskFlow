@@ -6,6 +6,23 @@ import { Layout } from '../Layout.jsx'
 import { AuthContext } from '../../context/AuthContext.jsx'
 import { ThemeProvider } from '../../context/ThemeContext.jsx'
 
+vi.mock('../../lib/api', async (importOriginal) => {
+  const actual = await importOriginal()
+
+  return {
+    ...actual,
+    api: {
+      get: vi.fn(() =>
+        Promise.resolve({
+          data: { data: [], unread_count: 0, meta: { current_page: 1, last_page: 1 } },
+        }),
+      ),
+      post: vi.fn(),
+      patch: vi.fn(),
+    },
+  }
+})
+
 const USER = {
   id: 1,
   name: 'Ana Propietaria',
@@ -50,8 +67,12 @@ describe('Layout', () => {
 
     const themeButton = screen.getByRole('button', { name: 'Cambiar tema' })
     const userButton = screen.getByRole('button', { name: 'Menú de Ana Propietaria' })
+    const notificationsButton = screen.getByRole('button', { name: 'Notificaciones' })
 
     expect(themeButton.compareDocumentPosition(userButton)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(notificationsButton.compareDocumentPosition(userButton)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     )
     expect(screen.getByText('Ana Propietaria')).toBeInTheDocument()

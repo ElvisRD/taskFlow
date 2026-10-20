@@ -1,5 +1,6 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { api, UNAUTHORIZED_EVENT } from '../lib/api'
+import { disconnectEcho } from '../lib/realtime'
 import { clearToken, getToken, setToken } from '../lib/token'
 
 export const AuthContext = createContext(null)
@@ -50,6 +51,7 @@ export function AuthProvider({ children }) {
   // Logs out if the token is no longer valid.
   useEffect(() => {
     const handleUnauthorized = () => {
+      disconnectEcho()
       setUser(null)
       setStatus('guest')
     }
@@ -93,6 +95,7 @@ export function AuthProvider({ children }) {
     }
 
     clearToken()
+    disconnectEcho()
     setUser(null)
     setStatus('guest')
   }, [])

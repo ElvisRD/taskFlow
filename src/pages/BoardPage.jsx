@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   DndContext,
   DragOverlay,
@@ -94,6 +94,8 @@ export function BoardPage() {
   const { workspaceId, boardId } = useParams()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const taskIdFromUrl = searchParams.get('task')
 
   const [workspace, setWorkspace] = useState(null)
   const [board, setBoard] = useState(null)
@@ -172,6 +174,42 @@ export function BoardPage() {
   useEffect(() => {
     loadBoard()
   }, [loadBoard])
+
+  useEffect(() => {
+    if (!taskIdFromUrl) {
+      return
+    }
+
+    const taskId = Number(taskIdFromUrl)
+
+    if (!Number.isInteger(taskId)) {
+      return
+    }
+
+    const exists = lists.some((list) => list.tasks.some((task) => task.id === taskId))
+
+    if (exists) {
+      setSelectedTaskId(taskId)
+    }
+  }, [lists, taskIdFromUrl])
+
+  const handleCloseTask = () => {
+    setSelectedTaskId(null)
+
+    if (!taskIdFromUrl) {
+      return
+    }
+
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current)
+        next.delete('task')
+
+        return next
+      },
+      { replace: true },
+    )
+  }
 
   const selectedTask = useMemo(() => {
     if (!selectedTaskId) {
@@ -783,7 +821,7 @@ export function BoardPage() {
         members={assignableMembers}
         currentUserId={user?.id}
         isAdmin={canManage}
-        onClose={() => setSelectedTaskId(null)}
+        onClose={handleCloseTask}
         onUpdated={handleTaskUpdated}
         onDeleted={handleTaskDeleted}
         onCountsChanged={() => loadBoard({ silent: true })}

@@ -44,6 +44,47 @@ export function formatDateTime(value) {
   }).format(date)
 }
 
+/**
+ * Formats an ISO datetime as a short relative time in Spanish.
+ */
+export function formatRelativeTime(value, now = new Date()) {
+  if (!value) {
+    return ''
+  }
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  const formatter = new Intl.RelativeTimeFormat('es', { numeric: 'auto' })
+  const seconds = Math.round((date.getTime() - now.getTime()) / 1000)
+  const absoluteSeconds = Math.abs(seconds)
+
+  if (absoluteSeconds < 60) {
+    return formatter.format(Math.round(seconds), 'second')
+  }
+
+  if (absoluteSeconds < 3600) {
+    return formatter.format(Math.round(seconds / 60), 'minute')
+  }
+
+  if (absoluteSeconds < 86400) {
+    return formatter.format(Math.round(seconds / 3600), 'hour')
+  }
+
+  if (absoluteSeconds < 2592000) {
+    return formatter.format(Math.round(seconds / 86400), 'day')
+  }
+
+  if (absoluteSeconds < 31536000) {
+    return formatter.format(Math.round(seconds / 2592000), 'month')
+  }
+
+  return formatter.format(Math.round(seconds / 31536000), 'year')
+}
+
 export function formatBytes(bytes) {
   if (!bytes && bytes !== 0) {
     return ''
