@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/Button.jsx'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog.jsx'
 import { Field, inputClass } from '../../components/ui/Field.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
+import { Select } from '../../components/ui/Select.jsx'
 import { api, apiErrorMessage, validationErrors } from '../../lib/api.js'
 import { TASK_PRIORITIES } from '../../lib/constants.js'
 import { AttachmentList } from './AttachmentList.jsx'
@@ -158,18 +159,17 @@ export function TaskDialog({
 
         <div className="space-y-4">
           <Field label="Prioridad" htmlFor="task-priority" error={errors.priority}>
-            <select
+            <Select
               id="task-priority"
               value={form.priority}
               onChange={(event) => update('priority', event.target.value)}
-              className={inputClass}
             >
               {TASK_PRIORITIES.map((priority) => (
                 <option key={priority.value} value={priority.value}>
                   {priority.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
 
           <Field label="Fecha límite" htmlFor="task-due-date" error={errors.due_date}>
@@ -183,11 +183,10 @@ export function TaskDialog({
           </Field>
 
           <Field label="Asignada a" htmlFor="task-assignee" error={errors.assigned_to}>
-            <select
+            <Select
               id="task-assignee"
               value={form.assigned_to}
               onChange={(event) => update('assigned_to', event.target.value)}
-              className={inputClass}
             >
               <option value="">Sin asignar</option>
               {members.map((member) => (
@@ -195,7 +194,7 @@ export function TaskDialog({
                   {member.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
 
           <label className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200 dark:bg-zinc-800/60 dark:text-zinc-300 dark:ring-zinc-700">

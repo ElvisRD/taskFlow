@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button.jsx'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog.jsx'
 import { Field, inputClass } from '../../components/ui/Field.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
+import { Select } from '../../components/ui/Select.jsx'
 import { Spinner } from '../../components/ui/Spinner.jsx'
 import { api, apiErrorMessage, validationErrors } from '../../lib/api.js'
 import { WORKSPACE_ROLES, roleLabel } from '../../lib/constants.js'
@@ -105,12 +106,6 @@ export function MembersPanel({ workspaceId, canManage, ownerId }) {
                 <Avatar name={member.name} src={member.avatar} size="md" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-slate-900 dark:text-zinc-100">
-                    {member.name}
-                    {isOwner ? (
-                      <Badge className="ml-2 bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30">
-                        Propietario
-                      </Badge>
-                    ) : null}
                   </p>
                   <p className="truncate text-xs text-slate-500 dark:text-zinc-400">
                     {member.email}
@@ -120,18 +115,19 @@ export function MembersPanel({ workspaceId, canManage, ownerId }) {
                 <div className="flex items-center gap-2">
                   {canManage && !isOwner ? (
                     <>
-                      <select
+                      <Select
+
                         value={member.role}
                         disabled={updatingId === member.id}
                         onChange={(event) => handleRoleChange(member, event.target.value)}
-                        className={`${inputClass} w-36 py-1.5 text-xs`}
+                        className="w-36 py-1.5 text-xs"
                       >
                         {WORKSPACE_ROLES.map((role) => (
                           <option key={role.value} value={role.value}>
                             {role.label}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -142,9 +138,14 @@ export function MembersPanel({ workspaceId, canManage, ownerId }) {
                       </Button>
                     </>
                   ) : (
-                    <Badge className="bg-slate-100 text-slate-600 ring-slate-200 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700">
+                    <div className='flex flex-col gap-1'>
+                      <Badge className="bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30 flex justify-center">
+                        Propietario
+                      </Badge>
+                      <Badge className="bg-slate-100 text-slate-600 ring-slate-200 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700">
                       {roleLabel(member.role)}
-                    </Badge>
+                      </Badge>
+                    </div>
                   )}
                 </div>
               </li>
@@ -234,18 +235,17 @@ function AddMemberDialog({ open, workspaceId, onClose, onAdded }) {
         </Field>
 
         <Field label="Rol" htmlFor="member-role" error={errors.role}>
-          <select
+          <Select
             id="member-role"
             value={form.role}
             onChange={(event) => setForm((previous) => ({ ...previous, role: event.target.value }))}
-            className={inputClass}
           >
             {WORKSPACE_ROLES.map((role) => (
               <option key={role.value} value={role.value}>
                 {role.label}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
 
         <div className="flex items-center justify-end gap-2 pt-2">

@@ -97,6 +97,14 @@ export function IconArrowLeft({ className = 'h-4 w-4' }) {
   )
 }
 
+export function IconChevronDown({ className = 'h-4 w-4' }) {
+  return (
+    <svg {...BASE} className={className}>
+      <path d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+    </svg>
+  )
+}
+
 export function IconSun({ className = 'h-4 w-4' }) {
   return (
     <svg {...BASE} className={className}>
