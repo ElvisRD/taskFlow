@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeToggle } from '../ThemeToggle.jsx'
@@ -21,7 +21,10 @@ function installMatchMedia(matches = false) {
 function renderToggle() {
   return render(
     <ThemeProvider>
-      <ThemeToggle />
+      <>
+        <ThemeToggle />
+        <button type="button">Fuera</button>
+      </>
     </ThemeProvider>,
   )
 }
@@ -86,15 +89,14 @@ describe('ThemeToggle', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 
-  it('closes the menu when clicking the backdrop', async () => {
+  it('closes the menu when clicking outside', async () => {
     const user = userEvent.setup()
-    const { container } = renderToggle()
+    renderToggle()
 
     await user.click(screen.getByRole('button', { name: 'Cambiar tema' }))
-    const backdrop = container.querySelector('button[aria-hidden="true"]')
+    expect(screen.getByRole('menu')).toBeInTheDocument()
 
-    expect(backdrop).not.toBeNull()
-    fireEvent.click(backdrop)
+    await user.click(screen.getByRole('button', { name: 'Fuera' }))
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })

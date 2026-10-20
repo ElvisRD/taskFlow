@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTheme } from '../hooks/useTheme.js'
 import { IconCheck, IconMonitor, IconMoon, IconSun } from './icons.jsx'
 
@@ -34,6 +34,7 @@ const ITEMS = {
 export function ThemeToggle({ variant = 'default', className = '' }) {
   const { theme, resolvedTheme, setTheme } = useTheme()
   const [open, setOpen] = useState(false)
+  const containerRef = useRef(null)
   const isDark = resolvedTheme === 'dark'
 
   useEffect(() => {
@@ -47,13 +48,23 @@ export function ThemeToggle({ variant = 'default', className = '' }) {
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown)
+    const handlePointerDown = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setOpen(false)
+      }
+    }
 
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('pointerdown', handlePointerDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('pointerdown', handlePointerDown)
+    }
   }, [open])
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
@@ -69,54 +80,45 @@ export function ThemeToggle({ variant = 'default', className = '' }) {
       </button>
 
       {open ? (
-        <>
-          <button
-            type="button"
-            aria-hidden="true"
-            tabIndex={-1}
-            className="fixed inset-0 z-40 cursor-default"
-            onClick={() => setOpen(false)}
-          />
-          <div
-            role="menu"
-            aria-label="Tema de la aplicación"
-            className={`absolute right-0 z-50 mt-1 w-40 overflow-hidden rounded-lg py-1 text-sm shadow-lg ring-1 ${
-              PANELS[variant] ?? PANELS.default
-            }`}
-          >
-            {OPTIONS.map((option) => {
-              const selected = theme === option.value
+        <div
+          role="menu"
+          aria-label="Tema de la aplicación"
+          className={`absolute right-0 z-50 mt-1 w-40 overflow-hidden rounded-lg py-1 text-sm shadow-lg ring-1 ${
+            PANELS[variant] ?? PANELS.default
+          }`}
+        >
+          {OPTIONS.map((option) => {
+            const selected = theme === option.value
 
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  role="menuitemradio"
-                  aria-checked={selected}
-                  onClick={() => {
-                    setTheme(option.value)
-                    setOpen(false)
-                  }}
-                  className={`flex w-full items-center gap-2 px-3 py-1.5 text-left ${
-                    ITEMS[variant] ?? ITEMS.default
-                  }`}
-                >
-                  <option.Icon className="h-4 w-4 shrink-0" />
-                  <span className="flex-1">{option.label}</span>
-                  {selected ? (
-                    <IconCheck
-                      className={`h-3.5 w-3.5 shrink-0 ${
-                        variant === 'inverse'
-                          ? 'text-indigo-300'
-                          : 'text-indigo-600 dark:text-indigo-300'
-                      }`}
-                    />
-                  ) : null}
-                </button>
-              )
-            })}
-          </div>
-        </>
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="menuitemradio"
+                aria-checked={selected}
+                onClick={() => {
+                  setTheme(option.value)
+                  setOpen(false)
+                }}
+                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left ${
+                  ITEMS[variant] ?? ITEMS.default
+                }`}
+              >
+                <option.Icon className="h-4 w-4 shrink-0" />
+                <span className="flex-1">{option.label}</span>
+                {selected ? (
+                  <IconCheck
+                    className={`h-3.5 w-3.5 shrink-0 ${
+                      variant === 'inverse'
+                        ? 'text-indigo-300'
+                        : 'text-indigo-600 dark:text-indigo-300'
+                    }`}
+                  />
+                ) : null}
+              </button>
+            )
+          })}
+        </div>
       ) : null}
     </div>
   )
