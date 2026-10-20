@@ -1,14 +1,20 @@
 /**
- * Formatea una fecha `YYYY-MM-DD` sin desfases de zona horaria.
+ * Formats a `YYYY-MM-DD` date without timezone shifts.
  */
 export function formatDate(value) {
   if (!value) {
     return null
   }
 
-  const [year, month, day] = String(value).slice(0, 10).split('-')
+  const [year, month, day] = String(value).slice(0, 10).split('-').map(Number)
 
-  if (!year || !month || !day) {
+  if (!year || !month || !day || month < 1 || month > 12 || day < 1 || day > 31) {
+    return null
+  }
+
+  const date = new Date(year, month - 1, day)
+
+  if (Number.isNaN(date.getTime())) {
     return null
   }
 
@@ -16,7 +22,7 @@ export function formatDate(value) {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-  }).format(new Date(Number(year), Number(month) - 1, Number(day)))
+  }).format(date)
 }
 
 export function formatDateTime(value) {
@@ -56,12 +62,13 @@ export function formatBytes(bytes) {
 }
 
 export function initials(name) {
-  if (!name) {
+  const trimmed = name?.trim()
+
+  if (!trimmed) {
     return '?'
   }
 
-  return name
-    .trim()
+  return trimmed
     .split(/\s+/)
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())

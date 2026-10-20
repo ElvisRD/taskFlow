@@ -1,0 +1,15 @@
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test/setup.js'],
+    restoreMocks: true,
+    // Components do not import CSS directly; skipping Tailwind processing
+    // in each test speeds up execution.
+    css: false,
+  },
+})

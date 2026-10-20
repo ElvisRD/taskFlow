@@ -5,15 +5,15 @@ import { clearToken, getToken, setToken } from '../lib/token'
 export const AuthContext = createContext(null)
 
 /**
- * Provee el usuario autenticado y las acciones de sesión.
+ * Provides the authenticated user and session actions.
  *
- * El token se guarda en localStorage y viaja en la cabecera Authorization.
+ * The token is stored in localStorage and sent in the Authorization header.
  */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [status, setStatus] = useState('loading')
 
-  // Recupera la sesión al montar la aplicación.
+  // Restores the session when the app mounts.
   useEffect(() => {
     let active = true
 
@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  // Cierra la sesión si el token deja de ser válido.
+  // Logs out if the token is no longer valid.
   useEffect(() => {
     const handleUnauthorized = () => {
       setUser(null)
@@ -89,7 +89,7 @@ export function AuthProvider({ children }) {
     try {
       await api.post('/auth/logout')
     } catch {
-      // El token pudo haber expirado; cerramos la sesión local igualmente.
+      // The token may have expired; clear the local session anyway.
     }
 
     clearToken()

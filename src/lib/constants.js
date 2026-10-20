@@ -42,7 +42,7 @@ export function roleLabel(value) {
   return WORKSPACE_ROLES.find((role) => role.value === value)?.label ?? value
 }
 
-/** Colores disponibles al crear un tablero. */
+/** Colors available when creating a board. */
 export const BOARD_COLORS = [
   { value: '#6366f1', label: 'Índigo' },
   { value: '#0ea5e9', label: 'Azul' },

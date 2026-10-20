@@ -1,7 +1,7 @@
 /**
- * dnd-kit requiere que todos los identificadores de un mismo DndContext sean
- * únicos. Como las listas y las tareas viven en tablas distintas, sus ids
- * pueden coincidir, así que los prefijamos.
+ * dnd-kit requires all identifiers in the same DndContext to be unique.
+ * Since lists and tasks live in different tables, their ids may collide,
+ * so we prefix them.
  */
 export function taskDndId(id) {
   return `task-${id}`
@@ -25,8 +25,8 @@ export function findListByTaskId(lists, taskId) {
 }
 
 /**
- * Resuelve la lista a la que apunta un id de droppable, ya sea una columna
- * (`list-<id>`) o una tarea (`task-<id>`).
+ * Resolves the list targeted by a droppable id, whether it is a column
+ * (`list-<id>`) or a task (`task-<id>`).
  */
 export function resolveList(lists, dndId) {
   const { type, id } = parseDndId(dndId)

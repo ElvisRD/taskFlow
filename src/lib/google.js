@@ -2,12 +2,12 @@ const SCRIPT_ID = 'google-identity-services'
 
 let loaderPromise = null
 
-/** Client ID público de Google (los client IDs no son secretos). */
+/** Public Google client ID (client IDs are not secret). */
 export const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
 
 /**
- * Carga el script de Google Identity Services una sola vez y resuelve con el
- * objeto global `google`.
+ * Loads the Google Identity Services script once and resolves with the
+ * global `google` object.
  */
 export function loadGoogleIdentityServices() {
   if (window.google?.accounts?.id) {

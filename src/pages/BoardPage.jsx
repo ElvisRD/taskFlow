@@ -132,8 +132,8 @@ export function BoardPage() {
 
   const canManage = workspace?.owner?.id === user?.id || workspace?.role === 'admin'
 
-  // El propietario puede no venir en el listado de miembros; lo añadimos para
-  // poder asignarle tareas.
+  // The owner may not be included in the member list; add them so tasks
+  // can be assigned to them.
   const assignableMembers = useMemo(() => {
     const list = [...members]
 

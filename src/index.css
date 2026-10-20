@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* El modo nocturno se activa con la clase `.dark` en <html>. */
+/* Dark mode is enabled by the `.dark` class on <html>. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -9,9 +9,9 @@
 }
 
 /*
- * Tailwind v4 deja los botones con el cursor por defecto del navegador.
- * Restauramos la manito en todos los botones interactivos (incluidos los
- * que renderiza React y los de librerías externas como Google).
+ * Tailwind v4 leaves buttons with the browser's default cursor.
+ * We restore the pointer cursor on all interactive buttons, including
+ * React-rendered buttons and those from external libraries such as Google.
  */
 @layer base {
   button:not(:disabled),
@@ -53,7 +53,7 @@ html.dark body {
   color: var(--color-zinc-100);
 }
 
-/* Barra de desplazamiento discreta, útil en las columnas del tablero */
+/* Thin scrollbar, useful in board columns. */
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--color-slate-300) transparent;
@@ -81,7 +81,7 @@ html.dark .scrollbar-thin::-webkit-scrollbar-thumb {
   background-color: var(--color-zinc-600);
 }
 
-/* Checkbox consistente en ambos temas (el nativo se ve mal en oscuro). */
+/* Consistent checkbox in both themes (the native one looks bad in dark mode). */
 .checkbox {
   appearance: none;
   display: inline-block;
@@ -122,10 +122,10 @@ html.dark .checkbox:checked {
 }
 
 /*
- * Google dibuja su logo sobre una ficha blanca. En tema oscuro la hacemos
- * transparente para que el SVG se integre con el fondo del botón.
- * Nota: las clases internas de Google Identity Services son generadas y
- * pueden cambiar entre versiones.
+ * Google renders its logo on a white tile. In dark mode we make it
+ * transparent so the SVG blends with the button background.
+ * Note: Google Identity Services internal classes are generated and
+ * may change between versions.
  */
 html.dark .google-signin [class*="Bz112c-haAclf"] {
   background-color: transparent !important;

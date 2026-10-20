@@ -27,9 +27,9 @@ const ITEMS = {
 }
 
 /**
- * Selector de tema: claro, oscuro o el del sistema.
+ * Theme selector: light, dark, or system.
  *
- * `variant="inverse"` está pensado para fondos oscuros, como el de AuthShell.
+ * `variant="inverse"` is intended for dark backgrounds, such as AuthShell.
  */
 export function ThemeToggle({ variant = 'default', className = '' }) {
   const { theme, resolvedTheme, setTheme } = useTheme()

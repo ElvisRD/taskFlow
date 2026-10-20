@@ -21,7 +21,7 @@ export function LoginPage() {
   const redirectTo = location.state?.from ?? '/workspaces'
 
   if (isAuthenticated) {
-    return <Navigate to="/workspaces" replace />
+    return <Navigate to={redirectTo} replace />
   }
 
   const handleChange = (event) => {

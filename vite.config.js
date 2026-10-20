@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       proxy: {
-        // Evita problemas de CORS en desarrollo: /api/v1/* -> Laravel
+        // Avoids CORS issues in development: /api/v1/* -> Laravel
         '/api': {
           target: proxyTarget,
           changeOrigin: true,

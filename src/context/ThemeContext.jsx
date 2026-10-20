@@ -16,7 +16,7 @@ function readStoredTheme() {
       return stored
     }
   } catch {
-    // localStorage puede no estar disponible (modo privado, permisos…).
+    // localStorage may be unavailable (private mode, permissions, etc.).
   }
 
   return 'system'
@@ -68,7 +68,7 @@ export function ThemeProvider({ children }) {
     try {
       localStorage.setItem(STORAGE_KEY, value)
     } catch {
-      // Sin persistencia: el tema sigue funcionando durante la sesión.
+      // Without persistence: the theme still works for the current session.
     }
   }, [])
 

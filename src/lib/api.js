@@ -2,8 +2,8 @@ import axios from 'axios'
 import { clearToken, getToken } from './token'
 
 /**
- * Evento que se dispara cuando el token deja de ser válido y la sesión
- * debe cerrarse (por ejemplo, tras un 401).
+ * Event fired when the token is no longer valid and the session
+ * must be closed (for example, after a 401).
  */
 export const UNAUTHORIZED_EVENT = 'taskflow:unauthorized'
 
@@ -34,7 +34,7 @@ api.interceptors.response.use(
   },
 )
 
-/** Mensaje legible para cualquier error devuelto por la API. */
+/** Human-readable message for any error returned by the API. */
 export function apiErrorMessage(error) {
   if (error?.response?.data?.message) {
     return error.response.data.message
@@ -52,7 +52,7 @@ export function apiErrorMessage(error) {
 }
 
 /**
- * Aplana los errores de validación (422) a un mapa `campo -> primer mensaje`.
+ * Flattens validation errors (422) into a `field -> first message` map.
  */
 export function validationErrors(error) {
   const errors = error?.response?.data?.errors
@@ -73,7 +73,7 @@ export function isValidationError(error) {
   return error?.response?.status === 422
 }
 
-/** Descarga un archivo protegido usando el token de la sesión. */
+/** Downloads a protected file using the session token. */
 export async function downloadFile(url, filename) {
   const response = await api.get(url, { responseType: 'blob' })
   const objectUrl = window.URL.createObjectURL(response.data)

@@ -7,7 +7,7 @@
     <meta name="description" content="TaskFlow - Gestor de tableros y tareas" />
     <title>TaskFlow</title>
     <script>
-      // Aplica el tema antes de pintar para evitar un destello de modo claro.
+      // Apply the theme before paint to avoid a flash of light mode.
       (() => {
         try {
           const stored = localStorage.getItem('taskflow-theme')
@@ -17,7 +17,7 @@
           root.classList.toggle('dark', dark)
           root.style.colorScheme = dark ? 'dark' : 'light'
         } catch {
-          // Sin acceso a localStorage: se usa el tema claro por defecto.
+          // No localStorage access: fall back to the light theme.
         }
       })()
     </script>
