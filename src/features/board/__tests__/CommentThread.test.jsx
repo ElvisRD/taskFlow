@@ -259,6 +259,77 @@ describe('CommentThread', () => {
     expect(onCountChange).toHaveBeenCalledTimes(1)
   })
 
+  it('does not submit an empty reply', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue({ data: { data: [COMMENTS[0]] } })
+
+    renderThread()
+    await screen.findByText('Comentario de Ana')
+
+    await user.click(screen.getByRole('button', { name: 'Responder' }))
+
+    const sendReply = screen.getByRole('button', { name: 'Enviar respuesta' })
+    expect(sendReply).toBeDisabled()
+
+    await user.type(screen.getByPlaceholderText('Escribe una respuesta…'), '   ')
+
+    expect(sendReply).toBeDisabled()
+    expect(api.post).not.toHaveBeenCalled()
+  })
+
+  it('keeps the reply draft when posting fails', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue({ data: { data: [COMMENTS[0]] } })
+    api.post.mockRejectedValue({
+      response: {
+        status: 500,
+        data: { message: 'No se pudo enviar la respuesta' },
+      },
+    })
+
+    renderThread()
+    await screen.findByText('Comentario de Ana')
+
+    await user.click(screen.getByRole('button', { name: 'Responder' }))
+    await user.type(
+      screen.getByPlaceholderText('Escribe una respuesta…'),
+      '  Respuesta con error  ',
+    )
+    await user.click(screen.getByRole('button', { name: 'Enviar respuesta' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'No se pudo enviar la respuesta',
+    )
+    expect(screen.getByPlaceholderText('Escribe una respuesta…')).toHaveValue(
+      '  Respuesta con error  ',
+    )
+    expect(api.post).toHaveBeenCalledWith('/tasks/100/comments', {
+      body: 'Respuesta con error',
+      parent_id: 1,
+    })
+  })
+
+  it('clears the draft when switching to another comment', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue({ data: { data: COMMENTS } })
+
+    renderThread()
+    await screen.findByText('Comentario de Ana')
+
+    const ana = screen.getByRole('article', { name: 'Comentario de Ana Propietaria' })
+    const beto = screen.getByRole('article', { name: 'Comentario de Beto Miembro' })
+
+    await user.click(within(ana).getByRole('button', { name: 'Responder' }))
+    await user.type(screen.getByPlaceholderText('Escribe una respuesta…'), 'Borrador de Ana')
+
+    await user.click(within(beto).getByRole('button', { name: 'Responder' }))
+
+    expect(screen.getByRole('form', { name: 'Responder a Beto Miembro' })).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Escribe una respuesta…')).toHaveValue('')
+    expect(screen.getAllByPlaceholderText('Escribe una respuesta…')).toHaveLength(1)
+    expect(api.post).not.toHaveBeenCalled()
+  })
+
   it('cancels a reply', async () => {
     const user = userEvent.setup()
     api.get.mockResolvedValue({ data: { data: [COMMENTS[0]] } })
