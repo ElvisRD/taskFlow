@@ -61,6 +61,24 @@ const COMMENTED = {
   created_at: new Date(Date.now() - 60 * 60_000).toISOString(),
 }
 
+const ATTACHMENT = {
+  id: 'notification-3',
+  type: 'AttachmentAdded',
+  payload: {
+    type: 'attachment_added',
+    task_id: 102,
+    board_id: 5,
+    workspace_id: 1,
+    title: 'Diseñar la landing',
+    actor: 'Ana Propietaria',
+    attachment_name: 'mockup.png',
+    mime_type: 'image/png',
+  },
+  read_at: new Date().toISOString(),
+  is_read: true,
+  created_at: new Date(Date.now() - 30 * 60_000).toISOString(),
+}
+
 function response(items = [ASSIGNED, COMMENTED], meta = null) {
   return {
     data: {
@@ -141,6 +159,22 @@ describe('NotificationBell', () => {
     expect(within(panel).getByText('Nuevo comentario')).toBeInTheDocument()
     expect(within(panel).getByText('¿Revisaste los últimos cambios?')).toBeInTheDocument()
     expect(within(panel).getAllByLabelText('Sin leer')).toHaveLength(1)
+  })
+
+  it('renders attachment notifications', async () => {
+    const user = userEvent.setup()
+    api.get.mockResolvedValue(response([ATTACHMENT]))
+
+    renderBell()
+    const panel = await openPanel(user)
+
+    expect(within(panel).getByText('Nuevo adjunto')).toBeInTheDocument()
+    expect(
+      within(panel).getByText(
+        'Ana Propietaria adjuntó un archivo a “Diseñar la landing”.',
+      ),
+    ).toBeInTheDocument()
+    expect(within(panel).getByText('mockup.png')).toBeInTheDocument()
   })
 
   it('marks a notification as read and opens its task', async () => {

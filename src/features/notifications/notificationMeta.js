@@ -2,6 +2,7 @@ import {
   IconBell,
   IconCalendar,
   IconChat,
+  IconPaperclip,
   IconUser,
 } from '../../components/icons.jsx'
 import { formatDate } from '../../lib/format.js'
@@ -27,6 +28,14 @@ const TYPES = {
     body: ({ actor, title }) =>
       `${actor ?? 'Alguien'} respondió a tu comentario en “${title ?? 'una tarea'}”.`,
     detail: ({ excerpt }) => excerpt,
+  },
+  attachment_added: {
+    Icon: IconPaperclip,
+    title: 'Nuevo adjunto',
+    tone: 'bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300',
+    body: ({ actor, title }) =>
+      `${actor ?? 'Alguien'} adjuntó un archivo a “${title ?? 'una tarea'}”.`,
+    detail: ({ attachment_name: name }) => name,
   },
   task_due_soon: {
     Icon: IconCalendar,
@@ -55,6 +64,7 @@ const PREFERENCE_DESCRIPTIONS = {
   task_assigned: 'Cuando te asignan una tarea.',
   comment_added: 'Cuando alguien comenta en una tarea.',
   comment_reply: 'Cuando responden a uno de tus comentarios.',
+  attachment_added: 'Cuando adjuntan un archivo a una tarea.',
   task_due_soon: 'Cuando una tarea se acerca a su fecha de vencimiento.',
   task_overdue: 'Cuando una tarea supera su fecha de vencimiento.',
 }

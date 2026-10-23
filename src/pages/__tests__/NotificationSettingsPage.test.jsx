@@ -32,6 +32,12 @@ const PREFERENCES = [
     email: false,
   },
   {
+    type: 'attachment_added',
+    label: 'Nuevo adjunto',
+    in_app: true,
+    email: true,
+  },
+  {
     type: 'task_overdue',
     label: 'Tarea vencida',
     in_app: false,
@@ -86,6 +92,10 @@ describe('NotificationSettingsPage', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('Tarea asignada')).toBeInTheDocument()
     expect(screen.getByText('Nuevo comentario')).toBeInTheDocument()
+    expect(screen.getByText('Nuevo adjunto')).toBeInTheDocument()
+    expect(
+      screen.getByText('Cuando adjuntan un archivo a una tarea.'),
+    ).toBeInTheDocument()
     expect(screen.getByText('Tarea vencida')).toBeInTheDocument()
 
     const inApp = screen.getByRole('switch', { name: 'Tarea asignada en la app' })
