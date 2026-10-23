@@ -47,6 +47,10 @@ function renderLayout(logout = vi.fn()) {
                 }
               />
               <Route path="/login" element={<div>Iniciar sesión</div>} />
+              <Route
+                path="/settings/notifications"
+                element={<div>Preferencias de notificaciones</div>}
+              />
             </Route>
           </Routes>
         </ThemeProvider>
@@ -80,19 +84,33 @@ describe('Layout', () => {
     expect(screen.queryByRole('button', { name: 'Salir' })).not.toBeInTheDocument()
   })
 
-  it('opens a menu with only the logout action and logs out', async () => {
+  it('opens a menu with the settings and logout actions', async () => {
     const user = userEvent.setup()
     const { logout } = renderLayout()
 
     await user.click(screen.getByRole('button', { name: 'Menú de Ana Propietaria' }))
 
     const menu = screen.getByRole('menu', { name: 'Menú de usuario' })
-    expect(within(menu).getAllByRole('menuitem')).toHaveLength(1)
+    expect(within(menu).getAllByRole('menuitem')).toHaveLength(2)
+    expect(within(menu).getByRole('menuitem', { name: 'Notificaciones' })).toHaveAttribute(
+      'href',
+      '/settings/notifications',
+    )
 
     await user.click(within(menu).getByRole('menuitem', { name: 'Cerrar sesión' }))
 
     await waitFor(() => expect(logout).toHaveBeenCalledTimes(1))
     expect(await screen.findByText('Iniciar sesión')).toBeInTheDocument()
+  })
+
+  it('navigates to the notification settings from the user menu', async () => {
+    const user = userEvent.setup()
+    renderLayout()
+
+    await user.click(screen.getByRole('button', { name: 'Menú de Ana Propietaria' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Notificaciones' }))
+
+    expect(await screen.findByText('Preferencias de notificaciones')).toBeInTheDocument()
   })
 
   it('closes the user menu with Escape', async () => {

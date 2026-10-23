@@ -11,6 +11,7 @@ import { BoardCard } from '../features/workspace/BoardCard.jsx'
 import { CreateBoardDialog } from '../features/workspace/CreateBoardDialog.jsx'
 import { EditWorkspaceDialog } from '../features/workspace/EditWorkspaceDialog.jsx'
 import { MembersPanel } from '../features/workspace/MembersPanel.jsx'
+import { NotificationMuteButton } from '../features/notifications/NotificationMuteButton.jsx'
 import { useAuth } from '../hooks/useAuth.js'
 import { api, apiErrorMessage } from '../lib/api.js'
 import { roleLabel } from '../lib/constants.js'
@@ -133,6 +134,11 @@ export function WorkspacePage() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
+          <NotificationMuteButton
+            targetType="workspace"
+            targetId={workspace.id}
+            onError={setError}
+          />
           {canManage ? (
             <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
               Editar

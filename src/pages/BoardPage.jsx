@@ -26,6 +26,7 @@ import { IconArrowLeft, IconPlus } from '../components/icons.jsx'
 import { BoardColumn } from '../features/board/BoardColumn.jsx'
 import { TaskCard } from '../features/board/TaskCard.jsx'
 import { TaskDialog } from '../features/board/TaskDialog.jsx'
+import { NotificationMuteButton } from '../features/notifications/NotificationMuteButton.jsx'
 import { useAuth } from '../hooks/useAuth.js'
 import { api, apiErrorMessage } from '../lib/api.js'
 import { TEXT_LIMITS, validateRequiredText } from '../lib/validation.js'
@@ -703,6 +704,11 @@ export function BoardPage() {
               />
             ))}
           </div>
+          <NotificationMuteButton
+            targetType="board"
+            targetId={board.id}
+            onError={setError}
+          />
           {canManage ? (
             <Button
               variant="ghost"

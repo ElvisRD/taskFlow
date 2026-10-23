@@ -51,6 +51,25 @@ const FALLBACK = {
   body: () => 'Tienes una nueva notificación.',
 }
 
+const PREFERENCE_DESCRIPTIONS = {
+  task_assigned: 'Cuando te asignan una tarea.',
+  comment_added: 'Cuando alguien comenta en una tarea.',
+  comment_reply: 'Cuando responden a uno de tus comentarios.',
+  task_due_soon: 'Cuando una tarea se acerca a su fecha de vencimiento.',
+  task_overdue: 'Cuando una tarea supera su fecha de vencimiento.',
+}
+
+/** Resolves the icon, tone and description used in notification settings. */
+export function notificationPreferenceMeta(type) {
+  const meta = TYPES[type] ?? FALLBACK
+
+  return {
+    Icon: meta.Icon,
+    tone: meta.tone,
+    description: PREFERENCE_DESCRIPTIONS[type] ?? '',
+  }
+}
+
 /** Resolves the copy, icon and colors for a notification payload. */
 export function notificationContent(payload = {}) {
   const meta = TYPES[payload.type] ?? FALLBACK

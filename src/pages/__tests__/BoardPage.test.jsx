@@ -90,6 +90,10 @@ function mockBoardGet(board = buildBoard(), workspace = WORKSPACE) {
       return Promise.resolve({ data: { data: MEMBERS } })
     }
 
+    if (url === '/notifications/preferences') {
+      return Promise.resolve({ data: { data: [], mutes: [] } })
+    }
+
     if (url.endsWith('/comments') || url.endsWith('/attachments')) {
       return Promise.resolve({ data: { data: [] } })
     }
@@ -346,6 +350,32 @@ describe('BoardPage', () => {
 
     await waitFor(() => expect(screen.queryByText('Por hacer')).not.toBeInTheDocument())
     expect(api.delete).toHaveBeenCalledWith('/boards/5/lists/10')
+  })
+
+  it('mutes the board from the header', async () => {
+    const user = userEvent.setup()
+    mockBoardGet()
+    api.post.mockResolvedValue({
+      data: {
+        data: { id: 12, type: 'board', target_id: 5, name: 'Sprint 1' },
+      },
+    })
+
+    renderBoard()
+    await screen.findByRole('heading', { name: 'Sprint 1' })
+
+    const button = await screen.findByRole('button', { name: 'Silenciar tablero' })
+
+    await waitFor(() => expect(button).not.toBeDisabled())
+    await user.click(button)
+
+    expect(api.post).toHaveBeenCalledWith('/notifications/mutes', {
+      target_type: 'board',
+      target_id: 5,
+    })
+    expect(
+      await screen.findByRole('button', { name: 'Reactivar notificaciones' }),
+    ).toBeInTheDocument()
   })
 
   it('opens a task, saves changes and updates the board', async () => {
