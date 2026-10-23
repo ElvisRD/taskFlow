@@ -23,6 +23,23 @@ vi.mock('../../lib/api', async (importOriginal) => {
   }
 })
 
+// Layout tests only care about the header/menu. Stubbing the notifications hook
+// keeps NotificationBell from starting its async load after each test.
+vi.mock('../../hooks/useNotifications.js', () => ({
+  useNotifications: () => ({
+    notifications: [],
+    unreadCount: 0,
+    hasMore: false,
+    loading: false,
+    loadingMore: false,
+    error: '',
+    refresh: vi.fn(),
+    loadMore: vi.fn(),
+    markAsRead: vi.fn(),
+    markAllAsRead: vi.fn(),
+  }),
+}))
+
 const USER = {
   id: 1,
   name: 'Ana Propietaria',
