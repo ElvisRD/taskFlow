@@ -7,6 +7,12 @@ import { clearToken, getToken } from './token'
  */
 export const UNAUTHORIZED_EVENT = 'taskflow:unauthorized'
 
+/**
+ * Event fired when the API rejects a request because the user's email
+ * has not been verified yet.
+ */
+export const VERIFICATION_REQUIRED_EVENT = 'taskflow:verification-required'
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api/v1',
   headers: { Accept: 'application/json' },
@@ -30,12 +36,23 @@ api.interceptors.response.use(
       window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
     }
 
+    if (
+      error.response?.status === 403 &&
+      /verificar tu correo/i.test(error.response?.data?.message ?? '')
+    ) {
+      window.dispatchEvent(new Event(VERIFICATION_REQUIRED_EVENT))
+    }
+
     return Promise.reject(error)
   },
 )
 
 /** Human-readable message for any error returned by the API. */
 export function apiErrorMessage(error) {
+  if (error?.response?.status === 429) {
+    return 'Demasiados intentos. Espera un momento antes de volver a intentarlo.'
+  }
+
   if (error?.response?.data?.message) {
     return error.response.data.message
   }

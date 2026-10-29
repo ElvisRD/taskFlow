@@ -68,6 +68,7 @@ function renderLayout(logout = vi.fn()) {
                 path="/settings/notifications"
                 element={<div>Preferencias de notificaciones</div>}
               />
+              <Route path="/settings/security" element={<div>Seguridad page</div>} />
             </Route>
           </Routes>
         </ThemeProvider>
@@ -108,10 +109,14 @@ describe('Layout', () => {
     await user.click(screen.getByRole('button', { name: 'Menú de Ana Propietaria' }))
 
     const menu = screen.getByRole('menu', { name: 'Menú de usuario' })
-    expect(within(menu).getAllByRole('menuitem')).toHaveLength(2)
+    expect(within(menu).getAllByRole('menuitem')).toHaveLength(3)
     expect(within(menu).getByRole('menuitem', { name: 'Notificaciones' })).toHaveAttribute(
       'href',
       '/settings/notifications',
+    )
+    expect(within(menu).getByRole('menuitem', { name: 'Seguridad' })).toHaveAttribute(
+      'href',
+      '/settings/security',
     )
 
     await user.click(within(menu).getByRole('menuitem', { name: 'Cerrar sesión' }))
@@ -128,6 +133,16 @@ describe('Layout', () => {
     await user.click(screen.getByRole('menuitem', { name: 'Notificaciones' }))
 
     expect(await screen.findByText('Preferencias de notificaciones')).toBeInTheDocument()
+  })
+
+  it('navigates to the security settings from the user menu', async () => {
+    const user = userEvent.setup()
+    renderLayout()
+
+    await user.click(screen.getByRole('button', { name: 'Menú de Ana Propietaria' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Seguridad' }))
+
+    expect(await screen.findByText('Seguridad page')).toBeInTheDocument()
   })
 
   it('closes the user menu with Escape', async () => {

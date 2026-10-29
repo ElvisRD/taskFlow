@@ -160,6 +160,15 @@ export function IconBellOff({ className = 'h-4 w-4' }) {
   )
 }
 
+export function IconShield({ className = 'h-4 w-4' }) {
+  return (
+    <svg {...BASE} className={className}>
+      <path d="M12 3 4.5 6v5.25c0 4.5 3.19 7.72 7.5 9.75 4.31-2.03 7.5-5.25 7.5-9.75V6L12 3Z" />
+      <path d="m9.75 12 1.5 1.5 3-3" />
+    </svg>
+  )
+}
+
 export function IconSettings({ className = 'h-4 w-4' }) {
   return (
     <svg {...BASE} className={className}>

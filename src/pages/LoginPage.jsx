@@ -9,7 +9,7 @@ import { useAuth } from '../hooks/useAuth.js'
 import { apiErrorMessage, validationErrors } from '../lib/api.js'
 
 export function LoginPage() {
-  const { login, loginWithGoogle, isAuthenticated } = useAuth()
+  const { login, loginWithGoogle, isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -21,7 +21,12 @@ export function LoginPage() {
   const redirectTo = location.state?.from ?? '/workspaces'
 
   if (isAuthenticated) {
-    return <Navigate to={redirectTo} replace />
+    return (
+      <Navigate
+        to={user?.email_verified === false ? '/verify-email' : redirectTo}
+        replace
+      />
+    )
   }
 
   const handleChange = (event) => {
@@ -35,8 +40,11 @@ export function LoginPage() {
     setMessage('')
 
     try {
-      await login(form)
-      navigate(redirectTo, { replace: true })
+      const authenticatedUser = await login(form)
+      navigate(
+        authenticatedUser?.email_verified === false ? '/verify-email' : redirectTo,
+        { replace: true },
+      )
     } catch (error) {
       setErrors(validationErrors(error))
       setMessage(apiErrorMessage(error))
@@ -51,8 +59,11 @@ export function LoginPage() {
     setMessage('')
 
     try {
-      await loginWithGoogle(credential)
-      navigate(redirectTo, { replace: true })
+      const authenticatedUser = await loginWithGoogle(credential)
+      navigate(
+        authenticatedUser?.email_verified === false ? '/verify-email' : redirectTo,
+        { replace: true },
+      )
     } catch (error) {
       setErrors(validationErrors(error))
       setMessage(apiErrorMessage(error))
@@ -122,6 +133,15 @@ export function LoginPage() {
             placeholder="••••••••"
           />
         </Field>
+
+        <div className="-mt-2 text-right">
+          <Link
+            to="/forgot-password"
+            className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
 
         <Button type="submit" loading={submitting} className="w-full" size="lg">
           Entrar

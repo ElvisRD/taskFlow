@@ -28,7 +28,12 @@ vi.mock('../../components/GoogleSignInButton.jsx', () => ({
   ),
 }))
 
-const USER = { id: 1, name: 'Ana', email: 'ana@taskflow.test' }
+const USER = {
+  id: 1,
+  name: 'Ana',
+  email: 'ana@taskflow.test',
+  email_verified: true,
+}
 
 function renderLogin(initialEntries = ['/login']) {
   return render(
@@ -37,6 +42,8 @@ function renderLogin(initialEntries = ['/login']) {
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<div>Forgot password page</div>} />
+            <Route path="/verify-email" element={<div>Verify email page</div>} />
             <Route path="/workspaces" element={<div>Workspaces page</div>} />
             <Route path="/workspaces/:id" element={<div>Board destino</div>} />
           </Routes>
@@ -64,6 +71,10 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText('Correo electrónico')).toBeInTheDocument()
     expect(screen.getByLabelText('Contraseña')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '¿Olvidaste tu contraseña?' })).toHaveAttribute(
+      'href',
+      '/forgot-password',
+    )
     expect(screen.getByText('ana@taskflow.test · password')).toBeInTheDocument()
     expect(screen.getByText('beto@taskflow.test · password')).toBeInTheDocument()
   })
@@ -84,6 +95,29 @@ describe('LoginPage', () => {
       password: 'password',
     })
     expect(getToken()).toBe('token-login')
+  })
+
+  it('sends unverified users to the verification page after login', async () => {
+    const user = userEvent.setup()
+    api.post.mockResolvedValue({
+      data: { token: 'token-login', data: { ...USER, email_verified: false } },
+    })
+
+    renderLogin()
+    await fillCredentials(user)
+    await user.click(screen.getByRole('button', { name: 'Entrar' }))
+
+    await waitFor(() => expect(screen.getByText('Verify email page')).toBeInTheDocument())
+  })
+
+  it('redirects unverified authenticated users to the verification page', async () => {
+    setToken('token-existente')
+    api.get.mockResolvedValue({ data: { data: { ...USER, email_verified: false } } })
+
+    renderLogin()
+
+    await waitFor(() => expect(screen.getByText('Verify email page')).toBeInTheDocument())
+    expect(screen.queryByLabelText('Correo electrónico')).not.toBeInTheDocument()
   })
 
   it('returns to the origin route after login', async () => {

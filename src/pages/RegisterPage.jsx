@@ -16,7 +16,7 @@ const EMPTY_FORM = {
 }
 
 export function RegisterPage() {
-  const { register, loginWithGoogle, isAuthenticated } = useAuth()
+  const { register, loginWithGoogle, isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
 
   const [form, setForm] = useState(EMPTY_FORM)
@@ -25,7 +25,12 @@ export function RegisterPage() {
   const [submitting, setSubmitting] = useState(false)
 
   if (isAuthenticated) {
-    return <Navigate to="/workspaces" replace />
+    return (
+      <Navigate
+        to={user?.email_verified === false ? '/verify-email' : '/workspaces'}
+        replace
+      />
+    )
   }
 
   const handleChange = (event) => {
@@ -39,8 +44,11 @@ export function RegisterPage() {
     setMessage('')
 
     try {
-      await register(form)
-      navigate('/workspaces', { replace: true })
+      const registeredUser = await register(form)
+      navigate(
+        registeredUser?.email_verified === false ? '/verify-email' : '/workspaces',
+        { replace: true },
+      )
     } catch (error) {
       setErrors(validationErrors(error))
       setMessage(apiErrorMessage(error))
@@ -55,8 +63,11 @@ export function RegisterPage() {
     setMessage('')
 
     try {
-      await loginWithGoogle(credential)
-      navigate('/workspaces', { replace: true })
+      const authenticatedUser = await loginWithGoogle(credential)
+      navigate(
+        authenticatedUser?.email_verified === false ? '/verify-email' : '/workspaces',
+        { replace: true },
+      )
     } catch (error) {
       setErrors(validationErrors(error))
       setMessage(apiErrorMessage(error))
@@ -72,7 +83,7 @@ export function RegisterPage() {
   return (
     <AuthShell
       title="Crea tu cuenta"
-      subtitle="Regístrate para empezar a organizar tu trabajo."
+      subtitle="Regístrate para empezar a organizar tu trabajo. Te enviaremos un correo para verificar tu cuenta."
       footer={
         <>
           ¿Ya tienes cuenta?{' '}

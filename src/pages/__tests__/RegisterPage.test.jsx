@@ -28,7 +28,12 @@ vi.mock('../../components/GoogleSignInButton.jsx', () => ({
   ),
 }))
 
-const USER = { id: 2, name: 'Beto', email: 'beto@taskflow.test' }
+const USER = {
+  id: 2,
+  name: 'Beto',
+  email: 'beto@taskflow.test',
+  email_verified: true,
+}
 
 function renderRegister(initialEntries = ['/register']) {
   return render(
@@ -38,6 +43,7 @@ function renderRegister(initialEntries = ['/register']) {
           <Routes>
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<div>Login page</div>} />
+            <Route path="/verify-email" element={<div>Verify email page</div>} />
             <Route path="/workspaces" element={<div>Workspaces page</div>} />
           </Routes>
         </AuthProvider>
@@ -87,6 +93,20 @@ describe('RegisterPage', () => {
       password: 'password123',
       password_confirmation: 'password123',
     })
+    expect(getToken()).toBe('token-registro')
+  })
+
+  it('sends new users to the verification page', async () => {
+    const user = userEvent.setup()
+    api.post.mockResolvedValue({
+      data: { token: 'token-registro', data: { ...USER, email_verified: false } },
+    })
+
+    renderRegister()
+    await fillForm(user)
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    await waitFor(() => expect(screen.getByText('Verify email page')).toBeInTheDocument())
     expect(getToken()).toBe('token-registro')
   })
 

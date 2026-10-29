@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   UNAUTHORIZED_EVENT,
+  VERIFICATION_REQUIRED_EVENT,
   api,
   apiErrorMessage,
   downloadFile,
@@ -90,6 +91,36 @@ describe('api', () => {
 
     window.removeEventListener(UNAUTHORIZED_EVENT, handler)
   })
+
+  it('on a 403 requiring email verification, emits the verification event', async () => {
+    const handler = vi.fn()
+    window.addEventListener(VERIFICATION_REQUIRED_EVENT, handler)
+    rejectWith({
+      status: 403,
+      data: { message: 'Debes verificar tu correo electrónico antes de continuar.' },
+    })
+
+    await expect(api.get('/workspaces')).rejects.toThrow()
+
+    expect(handler).toHaveBeenCalledTimes(1)
+
+    window.removeEventListener(VERIFICATION_REQUIRED_EVENT, handler)
+  })
+
+  it('does not emit the verification event for other 403 responses', async () => {
+    const handler = vi.fn()
+    window.addEventListener(VERIFICATION_REQUIRED_EVENT, handler)
+    rejectWith({
+      status: 403,
+      data: { message: 'No tienes permisos para realizar esta acción.' },
+    })
+
+    await expect(api.get('/workspaces')).rejects.toThrow()
+
+    expect(handler).not.toHaveBeenCalled()
+
+    window.removeEventListener(VERIFICATION_REQUIRED_EVENT, handler)
+  })
 })
 
 describe('apiErrorMessage', () => {
@@ -109,6 +140,14 @@ describe('apiErrorMessage', () => {
     expect(apiErrorMessage({ response: { status: 404, data: {} } })).toBe(
       'El recurso solicitado no existe.',
     )
+  })
+
+  it('translates 429 regardless of the server message', () => {
+    expect(
+      apiErrorMessage({
+        response: { status: 429, data: { message: 'Too Many Attempts.' } },
+      }),
+    ).toBe('Demasiados intentos. Espera un momento antes de volver a intentarlo.')
   })
 
   it('uses the error message as fallback', () => {

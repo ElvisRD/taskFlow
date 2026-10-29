@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth.js'
 import { Avatar } from './Avatar.jsx'
 import { ThemeToggle } from './ThemeToggle.jsx'
 import { NotificationBell } from '../features/notifications/NotificationBell.jsx'
-import { IconChevronDown, IconLogo, IconLogout, IconSettings } from './icons.jsx'
+import { IconChevronDown, IconLogo, IconLogout, IconSettings, IconShield } from './icons.jsx'
 
 export function Layout() {
   const { user, logout } = useAuth()
@@ -118,6 +118,15 @@ export function Layout() {
                   >
                     <IconSettings className="h-4 w-4 shrink-0 text-slate-400" />
                     <span>Notificaciones</span>
+                  </Link>
+                  <Link
+                    to="/settings/security"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-slate-700 transition hover:bg-slate-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                  >
+                    <IconShield className="h-4 w-4 shrink-0 text-slate-400" />
+                    <span>Seguridad</span>
                   </Link>
                   <button
                     type="button"
