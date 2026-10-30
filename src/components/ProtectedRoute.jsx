@@ -15,7 +15,7 @@ export function ProtectedRoute({ requireVerified = true }) {
   }
 
   if (requireVerified && user?.email_verified === false) {
-    return <Navigate to="/verify-email" replace />
+    return <Navigate to="/verify-email" replace state={{ from: location.pathname }} />
   }
 
   return <Outlet />

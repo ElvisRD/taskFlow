@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AuthShell } from '../components/AuthShell.jsx'
 import { Alert } from '../components/ui/Alert.jsx'
 import { Button } from '../components/ui/Button.jsx'
@@ -9,6 +9,8 @@ import { apiErrorMessage } from '../lib/api.js'
 export function VerifyEmailPage() {
   const { user, isVerified, resendVerificationEmail, refreshUser, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const redirectTo = location.state?.from ?? '/workspaces'
 
   const [sending, setSending] = useState(false)
   const [checking, setChecking] = useState(false)
@@ -43,7 +45,7 @@ export function VerifyEmailPage() {
         return
       }
 
-      navigate('/workspaces', { replace: true })
+      navigate(redirectTo, { replace: true })
     } catch (requestError) {
       setError(apiErrorMessage(requestError))
     } finally {
@@ -62,7 +64,7 @@ export function VerifyEmailPage() {
         <Alert tone="success" className="mb-4">
           Tu correo electrónico está verificado.
         </Alert>
-        <Button as={Link} to="/workspaces" size="lg" className="w-full">
+        <Button as={Link} to={redirectTo} size="lg" className="w-full">
           Ir a mis workspaces
         </Button>
       </AuthShell>

@@ -24,6 +24,7 @@ export function LoginPage() {
     return (
       <Navigate
         to={user?.email_verified === false ? '/verify-email' : redirectTo}
+        state={user?.email_verified === false ? { from: redirectTo } : undefined}
         replace
       />
     )
@@ -43,7 +44,10 @@ export function LoginPage() {
       const authenticatedUser = await login(form)
       navigate(
         authenticatedUser?.email_verified === false ? '/verify-email' : redirectTo,
-        { replace: true },
+        {
+          replace: true,
+          state: authenticatedUser?.email_verified === false ? { from: redirectTo } : undefined,
+        },
       )
     } catch (error) {
       setErrors(validationErrors(error))
@@ -62,7 +66,10 @@ export function LoginPage() {
       const authenticatedUser = await loginWithGoogle(credential)
       navigate(
         authenticatedUser?.email_verified === false ? '/verify-email' : redirectTo,
-        { replace: true },
+        {
+          replace: true,
+          state: authenticatedUser?.email_verified === false ? { from: redirectTo } : undefined,
+        },
       )
     } catch (error) {
       setErrors(validationErrors(error))
@@ -82,7 +89,11 @@ export function LoginPage() {
       footer={
         <>
           ¿No tienes cuenta?{' '}
-          <Link to="/register" className="font-medium text-indigo-300 hover:text-indigo-200">
+          <Link
+            to="/register"
+            state={{ from: redirectTo }}
+            className="font-medium text-indigo-300 hover:text-indigo-200"
+          >
             Regístrate
           </Link>
         </>

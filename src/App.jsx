@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute.jsx'
 import { BoardPage } from './pages/BoardPage.jsx'
 import { EmailVerifiedPage } from './pages/EmailVerifiedPage.jsx'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.jsx'
+import { InvitationAcceptPage } from './pages/InvitationAcceptPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { NotificationSettingsPage } from './pages/NotificationSettingsPage.jsx'
@@ -22,6 +23,7 @@ export default function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/email/verified" element={<EmailVerifiedPage />} />
+      <Route path="/invitations/:token" element={<InvitationAcceptPage />} />
 
       <Route element={<ProtectedRoute requireVerified={false} />}>
         <Route path="/verify-email" element={<VerifyEmailPage />} />

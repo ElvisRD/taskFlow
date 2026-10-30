@@ -10,6 +10,7 @@ import { PageLoader } from '../components/ui/Spinner.jsx'
 import { BoardCard } from '../features/workspace/BoardCard.jsx'
 import { CreateBoardDialog } from '../features/workspace/CreateBoardDialog.jsx'
 import { EditWorkspaceDialog } from '../features/workspace/EditWorkspaceDialog.jsx'
+import { InvitationsPanel } from '../features/workspace/InvitationsPanel.jsx'
 import { MembersPanel } from '../features/workspace/MembersPanel.jsx'
 import { NotificationMuteButton } from '../features/notifications/NotificationMuteButton.jsx'
 import { useAuth } from '../hooks/useAuth.js'
@@ -191,11 +192,15 @@ export function WorkspacePage() {
           )}
         </div>
 
-        <MembersPanel
-          workspaceId={workspace.id}
-          canManage={canManage}
-          ownerId={workspace.owner?.id}
-        />
+        <div className="flex flex-col gap-6">
+          <MembersPanel
+            workspaceId={workspace.id}
+            canManage={canManage}
+            ownerId={workspace.owner?.id}
+          />
+
+          {canManage ? <InvitationsPanel workspaceId={workspace.id} /> : null}
+        </div>
       </div>
 
       <CreateBoardDialog

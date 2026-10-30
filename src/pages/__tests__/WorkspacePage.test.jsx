@@ -64,6 +64,10 @@ function mockWorkspace(mutes = []) {
       return Promise.resolve({ data: { data: MEMBERS } })
     }
 
+    if (url === '/workspaces/1/invitations') {
+      return Promise.resolve({ data: { data: [] } })
+    }
+
     if (url === '/notifications/preferences') {
       return Promise.resolve({ data: { data: [], mutes } })
     }

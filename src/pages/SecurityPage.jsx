@@ -71,6 +71,7 @@ export function SecurityPage() {
   const navigate = useNavigate()
 
   const hasPassword = user?.has_password !== false
+  const isDemoAccount = user?.is_demo === true
 
   const [passwordForm, setPasswordForm] = useState(EMPTY_PASSWORD_FORM)
   const [passwordErrors, setPasswordErrors] = useState({})
@@ -215,80 +216,99 @@ export function SecurityPage() {
         <section className="lg:col-span-1">
           <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-zinc-900 dark:ring-zinc-800">
             <header className="border-b border-slate-200 px-4 py-4 dark:border-zinc-800">
-              <h2 className="text-base font-semibold text-slate-900 dark:text-zinc-100">
-                Contraseña
-              </h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-base font-semibold text-slate-900 dark:text-zinc-100">
+                  Contraseña
+                </h2>
+                {isDemoAccount ? (
+                  <Badge className="bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30">
+                    Cuenta demo
+                  </Badge>
+                ) : null}
+              </div>
               <p className="mt-0.5 text-xs text-slate-500 dark:text-zinc-400">
-                {hasPassword
-                  ? 'Cambia tu contraseña periódicamente para mayor seguridad.'
-                  : 'Tu cuenta se creó con Google. Puedes establecer una contraseña para acceder también con tu correo.'}
+                {isDemoAccount
+                  ? 'Esta cuenta de demostración no permite cambiar la contraseña desde este panel.'
+                  : hasPassword
+                    ? 'Cambia tu contraseña periódicamente para mayor seguridad.'
+                    : 'Tu cuenta se creó con Google. Puedes establecer una contraseña para acceder también con tu correo.'}
               </p>
             </header>
 
-            <form onSubmit={handlePasswordSubmit} className="space-y-4 px-4 py-4" noValidate>
-              {passwordError ? <Alert>{passwordError}</Alert> : null}
-              {passwordSuccess ? <Alert tone="success">{passwordSuccess}</Alert> : null}
+            {isDemoAccount ? (
+              <div className="px-4 py-4">
+                <Alert tone="info">
+                  Las cuentas de prueba como Ana, Beto o Carla usan la contraseña compartida
+                  <strong> password</strong>. Para evitar que la demo deje de funcionar, no se
+                  puede cambiar desde aquí.
+                </Alert>
+              </div>
+            ) : (
+              <form onSubmit={handlePasswordSubmit} className="space-y-4 px-4 py-4" noValidate>
+                {passwordError ? <Alert>{passwordError}</Alert> : null}
+                {passwordSuccess ? <Alert tone="success">{passwordSuccess}</Alert> : null}
 
-              {hasPassword ? (
+                {hasPassword ? (
+                  <Field
+                    label="Contraseña actual"
+                    htmlFor="current_password"
+                    error={passwordErrors.current_password}
+                  >
+                    <input
+                      id="current_password"
+                      name="current_password"
+                      type="password"
+                      autoComplete="current-password"
+                      value={passwordForm.current_password}
+                      onChange={handlePasswordChange}
+                      className={inputClass}
+                      placeholder="••••••••"
+                    />
+                  </Field>
+                ) : null}
+
                 <Field
-                  label="Contraseña actual"
-                  htmlFor="current_password"
-                  error={passwordErrors.current_password}
+                  label="Nueva contraseña"
+                  htmlFor="password"
+                  error={passwordErrors.password}
+                  hint="Mínimo 8 caracteres."
                 >
                   <input
-                    id="current_password"
-                    name="current_password"
+                    id="password"
+                    name="password"
                     type="password"
-                    autoComplete="current-password"
-                    value={passwordForm.current_password}
+                    autoComplete="new-password"
+                    required
+                    value={passwordForm.password}
                     onChange={handlePasswordChange}
                     className={inputClass}
                     placeholder="••••••••"
                   />
                 </Field>
-              ) : null}
 
-              <Field
-                label="Nueva contraseña"
-                htmlFor="password"
-                error={passwordErrors.password}
-                hint="Mínimo 8 caracteres."
-              >
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={passwordForm.password}
-                  onChange={handlePasswordChange}
-                  className={inputClass}
-                  placeholder="••••••••"
-                />
-              </Field>
+                <Field
+                  label="Confirmar contraseña"
+                  htmlFor="password_confirmation"
+                  error={passwordErrors.password_confirmation}
+                >
+                  <input
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    value={passwordForm.password_confirmation}
+                    onChange={handlePasswordChange}
+                    className={inputClass}
+                    placeholder="••••••••"
+                  />
+                </Field>
 
-              <Field
-                label="Confirmar contraseña"
-                htmlFor="password_confirmation"
-                error={passwordErrors.password_confirmation}
-              >
-                <input
-                  id="password_confirmation"
-                  name="password_confirmation"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={passwordForm.password_confirmation}
-                  onChange={handlePasswordChange}
-                  className={inputClass}
-                  placeholder="••••••••"
-                />
-              </Field>
-
-              <Button type="submit" loading={savingPassword} className="w-full">
-                {hasPassword ? 'Actualizar contraseña' : 'Establecer contraseña'}
-              </Button>
-            </form>
+                <Button type="submit" loading={savingPassword} className="w-full">
+                  {hasPassword ? 'Actualizar contraseña' : 'Establecer contraseña'}
+                </Button>
+              </form>
+            )}
           </div>
         </section>
 

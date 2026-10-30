@@ -121,6 +121,28 @@ describe('SecurityPage', () => {
     expect(await screen.findByText('Contraseña establecida correctamente.')).toBeInTheDocument()
   })
 
+  it('blocks password changes for demo accounts', async () => {
+    renderPage({
+      user: {
+        id: 1,
+        name: 'Ana',
+        email: 'ana@taskflow.test',
+        has_password: true,
+        is_demo: true,
+      },
+    })
+
+    expect(await screen.findByText('taskflow-web')).toBeInTheDocument()
+    expect(screen.getByText('Cuenta demo')).toBeInTheDocument()
+    expect(
+      screen.getByText(/Las cuentas de prueba como Ana, Beto o Carla/),
+    ).toBeInTheDocument()
+    expect(screen.queryByLabelText('Contraseña actual')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Actualizar contraseña' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('revokes another session', async () => {
     const user = userEvent.setup()
     const auth = renderPage()

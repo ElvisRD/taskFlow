@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AuthShell } from '../components/AuthShell.jsx'
 import { GoogleSignInButton } from '../components/GoogleSignInButton.jsx'
 import { Alert } from '../components/ui/Alert.jsx'
@@ -18,6 +18,8 @@ const EMPTY_FORM = {
 export function RegisterPage() {
   const { register, loginWithGoogle, isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const redirectTo = location.state?.from ?? '/workspaces'
 
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
@@ -27,7 +29,8 @@ export function RegisterPage() {
   if (isAuthenticated) {
     return (
       <Navigate
-        to={user?.email_verified === false ? '/verify-email' : '/workspaces'}
+        to={user?.email_verified === false ? '/verify-email' : redirectTo}
+        state={user?.email_verified === false ? { from: redirectTo } : undefined}
         replace
       />
     )
@@ -46,8 +49,11 @@ export function RegisterPage() {
     try {
       const registeredUser = await register(form)
       navigate(
-        registeredUser?.email_verified === false ? '/verify-email' : '/workspaces',
-        { replace: true },
+        registeredUser?.email_verified === false ? '/verify-email' : redirectTo,
+        {
+          replace: true,
+          state: registeredUser?.email_verified === false ? { from: redirectTo } : undefined,
+        },
       )
     } catch (error) {
       setErrors(validationErrors(error))
@@ -65,8 +71,11 @@ export function RegisterPage() {
     try {
       const authenticatedUser = await loginWithGoogle(credential)
       navigate(
-        authenticatedUser?.email_verified === false ? '/verify-email' : '/workspaces',
-        { replace: true },
+        authenticatedUser?.email_verified === false ? '/verify-email' : redirectTo,
+        {
+          replace: true,
+          state: authenticatedUser?.email_verified === false ? { from: redirectTo } : undefined,
+        },
       )
     } catch (error) {
       setErrors(validationErrors(error))
@@ -87,7 +96,11 @@ export function RegisterPage() {
       footer={
         <>
           ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="font-medium text-indigo-300 hover:text-indigo-200">
+          <Link
+            to="/login"
+            state={{ from: redirectTo }}
+            className="font-medium text-indigo-300 hover:text-indigo-200"
+          >
             Inicia sesión
           </Link>
         </>
